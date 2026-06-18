@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #0a0a0b; color: #f4f2ec; -webkit-font-smoothing: antialiased; overflow-x: hidden; cursor: none; }
+  ::selection { background: #c2ff3a; color: #0a0a0b; }
+  ::-webkit-scrollbar { width: 9px; }
+  ::-webkit-scrollbar-track { background: #0a0a0b; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2c; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3a3c; }
+  input, textarea, button { font-family: inherit; }
+  @keyframes dr-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes dr-float { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-40px) scale(1.06); } }
+  @keyframes dr-drift { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(40px,-30px) scale(1.1); } 66% { transform: translate(-30px,20px) scale(.95); } }
+  @keyframes dr-cue { 0% { transform: translateY(0); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(16px); opacity: 0; } }
+  @keyframes dr-spin { to { transform: rotate(360deg); } }
+  @keyframes dr-grain { 0%{transform:translate(0,0);}10%{transform:translate(-5%,-5%);}30%{transform:translate(3%,-8%);}50%{transform:translate(-4%,6%);}70%{transform:translate(6%,3%);}90%{transform:translate(-2%,-4%);} }
+  @keyframes dr-pulse { 0%,100% { opacity:.5; } 50% { opacity:1; } }
+  @media (max-width: 860px) { body { cursor: auto; } }
+</style>
+</helmet>
+
+<div ref="{{ rootRef }}" style="--accent:#c2ff3a; position:relative; background:#0a0a0b; color:#f4f2ec; font-family:'Space Grotesk',-apple-system,sans-serif; min-height:100vh; overflow:hidden;">
+
+  <div data-grain="1" style="position:fixed; inset:-50%; width:200%; height:200%; pointer-events:none; z-index:9000; opacity:.06; mix-blend-mode:overlay; animation:dr-grain 1s steps(3) infinite; background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);"></div>
+
+  <div ref="{{ glowRef }}" style="position:fixed; top:0; left:0; width:520px; height:520px; margin-left:-260px; margin-top:-260px; border-radius:50%; pointer-events:none; z-index:8000; background:radial-gradient(circle, rgba(194,255,58,.10), rgba(194,255,58,0) 62%); mix-blend-mode:screen; transition:opacity .4s;"></div>
+
+  <div data-progress="1" style="position:fixed; top:0; left:0; height:3px; width:100%; transform:scaleX(0); transform-origin:0 50%; background:var(--accent,#c2ff3a); z-index:9500; box-shadow:0 0 14px var(--accent,#c2ff3a);"></div>
+
+  <nav ref="{{ navRef }}" style="position:fixed; top:0; left:0; right:0; z-index:7000; display:flex; align-items:center; justify-content:space-between; padding:20px 6vw; border-bottom:1px solid transparent; transition:background .4s, border-color .4s;">
+    <a href="#top" style="display:flex; align-items:baseline; gap:10px; text-decoration:none; color:#f4f2ec;">
+      <span style="width:11px; height:11px; border-radius:50%; background:var(--accent,#c2ff3a); box-shadow:0 0 12px var(--accent,#c2ff3a); animation:dr-pulse 2.2s ease-in-out infinite; align-self:center;"></span>
+      <span style="font-family:'Anton',sans-serif; font-size:22px; letter-spacing:.04em; text-transform:uppercase;">Drunken</span>
+      <span style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.34em; color:#7c7a72; text-transform:uppercase; padding-bottom:2px;">Records</span>
+    </a>
+    <div style="display:flex; align-items:center; gap:34px;">
+      <a href="#bands" style="font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; transition:color .25s;" style-hover="color:#f4f2ec;">Bands</a>
+      <a href="#releases" style="font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; transition:color .25s;" style-hover="color:#f4f2ec;">Releases</a>
+      <a href="#story" style="font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; transition:color .25s;" style-hover="color:#f4f2ec;">Story</a>
+      <a href="#booking" style="font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:#0a0a0b; text-decoration:none; background:var(--accent,#c2ff3a); padding:11px 20px; border-radius:4px; font-weight:600; transition:transform .25s, box-shadow .25s;" style-hover="transform:translateY(-2px); box-shadow:0 8px 24px rgba(194,255,58,.3);">Booking</a>
+    </div>
+  </nav>
+
+  <section id="top" data-screen-label="Hero" style="position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:120px 6vw 80px; overflow:hidden;">
+    <div data-blob="1" style="position:absolute; top:-10%; left:-8%; width:46vw; height:46vw; border-radius:50%; background:radial-gradient(circle, rgba(194,255,58,.16), transparent 64%); filter:blur(20px); animation:dr-drift 17s ease-in-out infinite;"></div>
+    <div data-blob="1" style="position:absolute; bottom:-18%; right:-6%; width:42vw; height:42vw; border-radius:50%; background:radial-gradient(circle, rgba(61,224,255,.10), transparent 64%); filter:blur(20px); animation:dr-float 13s ease-in-out infinite;"></div>
+    <div style="position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size:78px 78px; mask-image:radial-gradient(circle at 50% 42%, #000 10%, transparent 78%); pointer-events:none;"></div>
+
+    <div style="position:relative; max-width:1300px;">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:30px;">
+        <span style="width:42px; height:1px; background:var(--accent,#c2ff3a);"></span>
+        <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:#c2ff3a;">Independent Music Label · Est. 2023</span>
+      </div>
+      <h1 style="font-family:'Anton',sans-serif; margin:0; line-height:.82; letter-spacing:-.01em; text-transform:uppercase; font-size:clamp(56px, 13.5vw, 230px);">
+        <span style="display:block;">Drunken</span>
+        <span style="display:block; color:transparent; -webkit-text-stroke:2px var(--accent,#c2ff3a); position:relative;">Records<span style="position:absolute; right:-2px; top:8%; -webkit-text-stroke:0; color:var(--accent,#c2ff3a); font-size:.18em; font-family:'Space Mono',monospace; letter-spacing:.1em; animation:dr-pulse 2.4s ease-in-out infinite;">●</span></span>
+      </h1>
+      <p style="max-width:540px; margin:34px 0 0; font-size:clamp(16px,1.5vw,20px); line-height:1.55; color:#bdbbb2; font-weight:300;">Drei Bands. Ein Sound, der nie ganz nüchtern wird. <span style="color:#f4f2ec;">Irish Punk, Deutschpop und Rock für die ganze Familie</span> — alles unter einem verdammt lauten Dach.</p>
+      <div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:42px;">
+        <a href="#bands" style="display:inline-flex; align-items:center; gap:10px; background:var(--accent,#c2ff3a); color:#0a0a0b; padding:17px 30px; border-radius:4px; text-decoration:none; font-weight:600; font-size:15px; letter-spacing:.02em; transition:transform .3s, box-shadow .3s;" style-hover="transform:translateY(-3px); box-shadow:0 14px 38px rgba(194,255,58,.32);">Bands entdecken →</a>
+        <a href="#booking" style="display:inline-flex; align-items:center; gap:10px; border:1px solid rgba(255,255,255,.22); color:#f4f2ec; padding:17px 30px; border-radius:4px; text-decoration:none; font-weight:500; font-size:15px; letter-spacing:.02em; transition:border-color .3s, color .3s, background .3s;" style-hover="border-color:var(--accent,#c2ff3a); color:var(--accent,#c2ff3a);">Booking anfragen</a>
+      </div>
+    </div>
+
+    <div style="position:absolute; bottom:40px; left:6vw; display:flex; align-items:center; gap:12px;">
+      <div style="width:22px; height:36px; border:1.5px solid rgba(255,255,255,.25); border-radius:12px; position:relative;"><span style="position:absolute; left:50%; top:7px; transform:translateX(-50%); width:3px; height:7px; border-radius:2px; background:var(--accent,#c2ff3a); animation:dr-cue 1.7s ease-in-out infinite;"></span></div>
+      <span style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:#7c7a72;">Scroll</span>
+    </div>
+  </section>
+
+  <div style="position:relative; border-top:1px solid rgba(255,255,255,.07); border-bottom:1px solid rgba(255,255,255,.07); padding:26px 0; overflow:hidden; background:#0c0c0e;">
+    <div style="display:flex; width:max-content; animation:dr-marquee 26s linear infinite; will-change:transform;">
+      <span style="display:flex; align-items:center; gap:36px; padding-right:36px; font-family:'Anton',sans-serif; font-size:clamp(28px,4vw,52px); text-transform:uppercase; white-space:nowrap; letter-spacing:.02em;"><span>Eyirish</span><span style="color:var(--accent,#c2ff3a);">✶</span><span style="color:transparent;-webkit-text-stroke:1.5px #4a4a4c;">0,5er</span><span style="color:var(--accent,#c2ff3a);">✶</span><span>Die PapiBaras</span><span style="color:var(--accent,#c2ff3a);">✶</span><span style="color:transparent;-webkit-text-stroke:1.5px #4a4a4c;">Drunken Records</span><span style="color:var(--accent,#c2ff3a);">✶</span></span>
+      <span style="display:flex; align-items:center; gap:36px; padding-right:36px; font-family:'Anton',sans-serif; font-size:clamp(28px,4vw,52px); text-transform:uppercase; white-space:nowrap; letter-spacing:.02em;"><span>Eyirish</span><span style="color:var(--accent,#c2ff3a);">✶</span><span style="color:transparent;-webkit-text-stroke:1.5px #4a4a4c;">0,5er</span><span style="color:var(--accent,#c2ff3a);">✶</span><span>Die PapiBaras</span><span style="color:var(--accent,#c2ff3a);">✶</span><span style="color:transparent;-webkit-text-stroke:1.5px #4a4a4c;">Drunken Records</span><span style="color:var(--accent,#c2ff3a);">✶</span></span>
+    </div>
+  </div>
+
+  <section style="position:relative; padding:140px 6vw; max-width:1300px; margin:0 auto;">
+    <div data-reveal style="opacity:0; transform:translateY(40px); display:flex; align-items:center; gap:14px; margin-bottom:38px;">
+      <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:#c2ff3a;">[ 00 — Manifest ]</span>
+    </div>
+    <p data-reveal style="opacity:0; transform:translateY(40px); margin:0; font-family:'Anton',sans-serif; text-transform:uppercase; line-height:1.04; font-size:clamp(28px,5.4vw,80px); letter-spacing:-.005em; max-width:1100px;">Wir sind kein Label. <span style="color:var(--accent,#c2ff3a);">Wir sind eine Bande.</span> Drei Bands, eine Crew und ein Anspruch: ehrlich, laut und mit jeder Note ernst gemeint.</p>
+  </section>
+
+  <section id="bands" data-screen-label="Bands" style="position:relative; padding:60px 6vw 40px; scroll-margin-top:80px; max-width:1300px; margin:0 auto;">
+    <div data-reveal style="opacity:0; transform:translateY(40px); display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:30px; margin-bottom:30px;">
+      <div>
+        <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:#c2ff3a;">[ 01 — Roster ]</span>
+        <h2 style="font-family:'Anton',sans-serif; text-transform:uppercase; margin:14px 0 0; font-size:clamp(40px,7vw,110px); line-height:.85; letter-spacing:-.01em;">Die Bands</h2>
+      </div>
+      <span style="font-family:'Space Mono',monospace; font-size:13px; color:#7c7a72; letter-spacing:.1em;">03 Acts / 01 Familie</span>
+    </div>
+
+    <div data-reveal style="opacity:0; transform:translateY(40px); display:flex; gap:56px; align-items:center; flex-wrap:wrap; padding:60px 0;">
+      <div style="flex:1 1 380px; position:relative; min-width:300px;">
+        <div style="position:absolute; inset:-14px; background:radial-gradient(circle at 30% 30%, rgba(184,255,46,.22), transparent 70%); filter:blur(34px); z-index:0;"></div>
+        <div style="position:relative; z-index:1; aspect-ratio:4/5; width:100%; overflow:hidden; border-radius:8px; background:#0e0e10; transition:transform .5s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.025);"><image-slot id="band-eyirish" src="https://www.eyirish.de/assets/logo-center-DCymEqKZ.png" fit="contain" style="display:block; width:100%; height:100%; padding:11%; box-sizing:border-box;" shape="rect" placeholder="Eyirish — Logo / Foto"></image-slot></div>
+      </div>
+      <div style="flex:1 1 380px; min-width:280px;">
+        <div style="display:inline-flex; align-items:center; gap:9px; border:1px solid rgba(184,255,46,.4); color:#b8ff2e; padding:7px 14px; border-radius:99px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase;"><span style="width:7px;height:7px;border-radius:50%;background:#b8ff2e;"></span>Irish Punk · Rock · Folk</div>
+        <h3 style="font-family:'Anton',sans-serif; text-transform:uppercase; margin:20px 0 0; font-size:clamp(44px,6vw,84px); line-height:.9;">Eyirish</h3>
+        <p style="margin:22px 0 0; font-size:17px; line-height:1.65; color:#bdbbb2; font-weight:300; max-width:460px;">Whiskey-getränkter Irish Punk mit Fiddle, Bodhrán und einem Refrain, den die ganze Kneipe grölt. Drei Akkorde, ein Pint, kein Limit. <span style="color:#f4f2ec;">Folk-Tradition trifft auf Punk-Energie.</span></p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:24px;">
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:#7c7a72; border:1px solid rgba(255,255,255,.12); padding:8px 13px; border-radius:4px;">Fiddle</span>
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:#7c7a72; border:1px solid rgba(255,255,255,.12); padding:8px 13px; border-radius:4px;">Tin Whistle</span>
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:#7c7a72; border:1px solid rgba(255,255,255,.12); padding:8px 13px; border-radius:4px;">Singalong</span>
+        </div>
+        <div style="margin-top:32px;">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#7c7a72; margin-bottom:14px;">Überall hören</div>
+          <div style="display:flex; flex-wrap:wrap; gap:10px;">
+            <a href="https://open.spotify.com/intl-de/artist/7cc1XBu3FdO1r8iqx9MRxO" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#b8ff2e; color:#b8ff2e;">Spotify</a>
+            <a href="https://music.apple.com/de/artist/eyirish/1755193672" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#b8ff2e; color:#b8ff2e;">Apple Music</a>
+            <a href="https://music.amazon.de/artists/B0DNXL9YZY" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#b8ff2e; color:#b8ff2e;">Amazon</a>
+            <a href="https://www.deezer.com/search/Eyirish" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#b8ff2e; color:#b8ff2e;">Deezer</a>
+            <a href="https://www.youtube.com/@eyirish" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#b8ff2e; color:#b8ff2e;">YouTube</a>
+            <a href="https://www.eyirish.de" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#0a0a0b; text-decoration:none; background:#b8ff2e; padding:9px 14px; border-radius:99px; font-weight:700; transition:transform .25s;" style-hover="transform:translateY(-2px);">eyirish.de ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-reveal style="opacity:0; transform:translateY(40px); display:flex; flex-direction:row-reverse; gap:56px; align-items:center; flex-wrap:wrap; padding:60px 0; border-top:1px solid rgba(255,255,255,.07);">
+      <div style="flex:1 1 380px; position:relative; min-width:300px;">
+        <div style="position:absolute; inset:-14px; background:radial-gradient(circle at 70% 30%, rgba(255,122,61,.2), transparent 70%); filter:blur(34px); z-index:0;"></div>
+        <div style="position:relative; z-index:1; aspect-ratio:4/5; width:100%; overflow:hidden; border-radius:8px; background:#0e0e10; transition:transform .5s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.025);"><image-slot id="band-05er" src="https://www.null5er.de/images/avatar.png" fit="contain" style="display:block; width:100%; height:100%; padding:11%; box-sizing:border-box;" shape="rect" placeholder="0,5er — Logo / Foto"></image-slot></div>
+      </div>
+      <div style="flex:1 1 380px; min-width:280px;">
+        <div style="display:inline-flex; align-items:center; gap:9px; border:1px solid rgba(255,122,61,.4); color:#ff7a3d; padding:7px 14px; border-radius:99px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase;"><span style="width:7px;height:7px;border-radius:50%;background:#ff7a3d;"></span>Deutschpop · Rock · HipHop</div>
+        <h3 style="font-family:'Anton',sans-serif; text-transform:uppercase; margin:20px 0 0; font-size:clamp(44px,6vw,84px); line-height:.9;">0,5er</h3>
+        <p style="margin:22px 0 0; font-size:17px; line-height:1.65; color:#bdbbb2; font-weight:300; max-width:460px;">Ein halber Liter Lebensgefühl. Deutsche Texte zwischen Pop-Hook, Rock-Gitarre und HipHop-Flow — <span style="color:#f4f2ec;">ehrlich, frech und tanzbar.</span> Musik für die letzte Runde und den ersten Kaffee danach.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:24px;">
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:#7c7a72; border:1px solid rgba(255,255,255,.12); padding:8px 13px; border-radius:4px;">Deutsch</span>
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:#7c7a72; border:1px solid rgba(255,255,255,.12); padding:8px 13px; border-radius:4px;">Flow</span>
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:#7c7a72; border:1px solid rgba(255,255,255,.12); padding:8px 13px; border-radius:4px;">Hooks</span>
+        </div>
+        <div style="margin-top:32px;">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#7c7a72; margin-bottom:14px;">Überall hören</div>
+          <div style="display:flex; flex-wrap:wrap; gap:10px;">
+            <a href="https://open.spotify.com/intl-de/artist/0Vj9eTq3IH9zbX0k9Q4GzJ" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#ff7a3d; color:#ff7a3d;">Spotify</a>
+            <a href="https://music.apple.com/de/artist/0-5er/1750242664" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#ff7a3d; color:#ff7a3d;">Apple Music</a>
+            <a href="https://music.amazon.de/artists/B0D6757VGJ" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#ff7a3d; color:#ff7a3d;">Amazon</a>
+            <a href="https://www.deezer.com/de/artist/395362611" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#ff7a3d; color:#ff7a3d;">Deezer</a>
+            <a href="https://www.youtube.com/channel/UCU6n-cFsjVpSyUvKEx72kww" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#ff7a3d; color:#ff7a3d;">YouTube</a>
+            <a href="https://www.null5er.de" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#0a0a0b; text-decoration:none; background:#ff7a3d; padding:9px 14px; border-radius:99px; font-weight:700; transition:transform .25s;" style-hover="transform:translateY(-2px);">null5er.de ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-reveal style="opacity:0; transform:translateY(40px); display:flex; gap:56px; align-items:center; flex-wrap:wrap; padding:60px 0; border-top:1px solid rgba(255,255,255,.07);">
+      <div style="flex:1 1 380px; position:relative; min-width:300px;">
+        <div style="position:absolute; inset:-14px; background:radial-gradient(circle at 30% 30%, rgba(61,224,255,.2), transparent 70%); filter:blur(34px); z-index:0;"></div>
+        <div style="position:relative; z-index:1; aspect-ratio:4/5; width:100%; overflow:hidden; border-radius:8px; background:#0e0e10; transition:transform .5s cubic-bezier(.16,1,.3,1);" style-hover="transform:scale(1.025);"><image-slot id="band-papibaras" src="https://i.scdn.co/image/ab67616d00001e027671c6944f11a26d601b63e9" fit="cover" style="display:block; width:100%; height:100%;" shape="rect" placeholder="Die PapiBaras — Logo / Foto"></image-slot></div>
+      </div>
+      <div style="flex:1 1 380px; min-width:280px;">
+        <div style="display:inline-flex; align-items:center; gap:9px; border:1px solid rgba(61,224,255,.4); color:#3de0ff; padding:7px 14px; border-radius:99px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase;"><span style="width:7px;height:7px;border-radius:50%;background:#3de0ff;"></span>Kindergerechter Rock</div>
+        <h3 style="font-family:'Anton',sans-serif; text-transform:uppercase; margin:20px 0 0; font-size:clamp(40px,5.5vw,76px); line-height:.9;">Die PapiBaras</h3>
+        <p style="margin:22px 0 0; font-size:17px; line-height:1.65; color:#bdbbb2; font-weight:300; max-width:460px;">Echte Rockmusik für die ganze Familie. Riffs zum Mitwackeln, Texte zum Mitsingen und null Langeweile — <span style="color:#f4f2ec;">laut genug für die Kids, gut genug für die Eltern.</span> Capybara-Power auf der Bühne.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:24px;">
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:#7c7a72; border:1px solid rgba(255,255,255,.12); padding:8px 13px; border-radius:4px;">Familie</span>
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:#7c7a72; border:1px solid rgba(255,255,255,.12); padding:8px 13px; border-radius:4px;">Mitsingen</span>
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:#7c7a72; border:1px solid rgba(255,255,255,.12); padding:8px 13px; border-radius:4px;">Live-Spaß</span>
+        </div>
+        <div style="margin-top:32px;">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#7c7a72; margin-bottom:14px;">Überall hören</div>
+          <div style="display:flex; flex-wrap:wrap; gap:10px;">
+            <a href="https://open.spotify.com/intl-de/artist/6jn0ANUkdqKGqWcr819Jew" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#3de0ff; color:#3de0ff;">Spotify</a>
+            <a href="https://music.apple.com/de/artist/die-papibaras/6780271557" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#3de0ff; color:#3de0ff;">Apple Music</a>
+            <a href="https://music.amazon.de/artists/B0H5B7NF3W/die-papibaras" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#3de0ff; color:#3de0ff;">Amazon</a>
+            <a href="https://www.deezer.com/de/artist/396760961" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#3de0ff; color:#3de0ff;">Deezer</a>
+            <a href="https://www.youtube.com/channel/UCYZOsBnLVeQCCpXAG0E6Phw" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#bdbbb2; text-decoration:none; border:1px solid rgba(255,255,255,.14); padding:9px 14px; border-radius:99px; transition:border-color .25s, color .25s;" style-hover="border-color:#3de0ff; color:#3de0ff;">YouTube</a>
+            <a href="https://papibaras.de" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#0a0a0b; text-decoration:none; background:#3de0ff; padding:9px 14px; border-radius:99px; font-weight:700; transition:transform .25s;" style-hover="transform:translateY(-2px);">papibaras.de ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="releases" data-screen-label="Releases" style="position:relative; padding:120px 6vw; scroll-margin-top:80px; background:#0c0c0e; border-top:1px solid rgba(255,255,255,.07); border-bottom:1px solid rgba(255,255,255,.07);">
+    <div style="max-width:1300px; margin:0 auto;">
+      <div data-reveal style="opacity:0; transform:translateY(40px); display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; margin-bottom:50px;">
+        <div>
+          <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:#c2ff3a;">[ 02 — Musik ]</span>
+          <h2 style="font-family:'Anton',sans-serif; text-transform:uppercase; margin:14px 0 0; font-size:clamp(40px,7vw,110px); line-height:.85;">Releases</h2>
+        </div>
+        <p style="max-width:360px; margin:0; color:#bdbbb2; font-weight:300; line-height:1.6; font-size:15px;">Keine Platzhalter — die echte Diskografie, live von Spotify. Immer aktuell und direkt abspielbar.</p>
+      </div>
+
+      <div data-reveal style="opacity:0; transform:translateY(40px); display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:30px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:11px; margin-bottom:15px;"><span style="width:9px; height:9px; border-radius:50%; background:#b8ff2e; box-shadow:0 0 10px #b8ff2e;"></span><span style="font-family:'Anton',sans-serif; text-transform:uppercase; font-size:23px; letter-spacing:.02em;">Eyirish</span><span style="font-family:'Space Mono',monospace; font-size:11px; color:#7c7a72; letter-spacing:.14em; text-transform:uppercase;">Irish Punk</span></div>
+          <iframe title="Eyirish auf Spotify" src="https://open.spotify.com/embed/artist/7cc1XBu3FdO1r8iqx9MRxO?theme=0" width="100%" height="420" frameborder="0" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" style="border:0; border-radius:14px; display:block;"></iframe>
+        </div>
+        <div>
+          <div style="display:flex; align-items:center; gap:11px; margin-bottom:15px;"><span style="width:9px; height:9px; border-radius:50%; background:#ff7a3d; box-shadow:0 0 10px #ff7a3d;"></span><span style="font-family:'Anton',sans-serif; text-transform:uppercase; font-size:23px; letter-spacing:.02em;">0,5er</span><span style="font-family:'Space Mono',monospace; font-size:11px; color:#7c7a72; letter-spacing:.14em; text-transform:uppercase;">Deutschpop</span></div>
+          <iframe title="0,5er auf Spotify" src="https://open.spotify.com/embed/artist/0Vj9eTq3IH9zbX0k9Q4GzJ?theme=0" width="100%" height="420" frameborder="0" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" style="border:0; border-radius:14px; display:block;"></iframe>
+        </div>
+        <div>
+          <div style="display:flex; align-items:center; gap:11px; margin-bottom:15px;"><span style="width:9px; height:9px; border-radius:50%; background:#3de0ff; box-shadow:0 0 10px #3de0ff;"></span><span style="font-family:'Anton',sans-serif; text-transform:uppercase; font-size:23px; letter-spacing:.02em;">Die PapiBaras</span><span style="font-family:'Space Mono',monospace; font-size:11px; color:#7c7a72; letter-spacing:.14em; text-transform:uppercase;">Familienrock</span></div>
+          <iframe title="Die PapiBaras auf Spotify" src="https://open.spotify.com/embed/artist/6jn0ANUkdqKGqWcr819Jew?theme=0" width="100%" height="420" frameborder="0" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" style="border:0; border-radius:14px; display:block;"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="story" data-screen-label="Story" style="position:relative; padding:140px 6vw; max-width:1300px; margin:0 auto;">
+    <div style="display:flex; gap:70px; align-items:center; flex-wrap:wrap;">
+      <div data-reveal style="opacity:0; transform:translateY(40px); flex:1 1 420px; min-width:300px;">
+        <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:#c2ff3a;">[ 03 — Story ]</span>
+        <h2 style="font-family:'Anton',sans-serif; text-transform:uppercase; margin:16px 0 0; font-size:clamp(36px,5.4vw,80px); line-height:.9;">Aus der Kneipe<br>auf die Bühne</h2>
+        <p style="margin:28px 0 0; font-size:17px; line-height:1.7; color:#bdbbb2; font-weight:300; max-width:520px;">Drunken Records ist als Schnapsidee zwischen Tresen und Tonstudio entstanden — und genau so klingt's bis heute. Wir nehmen auf, was nach Mitternacht am ehrlichsten ist: <span style="color:#f4f2ec;">Musik, die nach echtem Leben schmeckt.</span></p>
+        <p style="margin:18px 0 0; font-size:17px; line-height:1.7; color:#bdbbb2; font-weight:300; max-width:520px;">Drei Bands, eine Crew, kein Bock auf Mainstream-Schema. Wir machen alles selbst — vom ersten Riff bis zum letzten Pressdruck.</p>
+
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:30px; margin-top:46px; max-width:480px;">
+          <div>
+            <div data-count="3" data-suffix="" style="font-family:'Anton',sans-serif; font-size:clamp(40px,5vw,68px); line-height:1; color:var(--accent,#c2ff3a);">0</div>
+            <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#8c8a82;">Bands im Roster</span>
+          </div>
+          <div>
+            <div style="font-family:'Anton',sans-serif; font-size:clamp(40px,5vw,68px); line-height:1; color:var(--accent,#c2ff3a);">2023</div>
+            <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#8c8a82;">Gegründet</span>
+          </div>
+          <div>
+            <div style="font-family:'Anton',sans-serif; font-size:clamp(40px,5vw,68px); line-height:1; color:var(--accent,#c2ff3a);">∞</div>
+            <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#8c8a82;">Liter Inspiration</span>
+          </div>
+          <div>
+            <div data-count="7" data-suffix="+" style="font-family:'Anton',sans-serif; font-size:clamp(40px,5vw,68px); line-height:1; color:var(--accent,#c2ff3a);">0</div>
+            <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#8c8a82;">Releases auf Spotify</span>
+          </div>
+        </div>
+      </div>
+      <div data-reveal style="opacity:0; transform:translateY(40px); flex:1 1 380px; min-width:300px; position:relative;">
+        <div style="position:absolute; inset:-20px; background:radial-gradient(circle at 60% 40%, rgba(194,255,58,.14), transparent 70%); filter:blur(40px);"></div>
+        <div style="position:relative; z-index:1; aspect-ratio:3/4; width:100%; overflow:hidden; border-radius:10px;"><image-slot id="story-image" style="display:block; width:100%; height:100%;" shape="rect" placeholder="Studio / Crew / Live-Foto"></image-slot></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="booking" data-screen-label="Booking" style="position:relative; padding:120px 6vw 130px; overflow:hidden; background:#0c0c0e; border-top:1px solid rgba(255,255,255,.07);">
+    <div data-blob="1" style="position:absolute; top:-30%; right:-10%; width:50vw; height:50vw; border-radius:50%; background:radial-gradient(circle, rgba(194,255,58,.1), transparent 64%); filter:blur(20px); animation:dr-float 15s ease-in-out infinite;"></div>
+    <div style="position:relative; max-width:1100px; margin:0 auto; display:flex; gap:70px; flex-wrap:wrap; align-items:flex-start;">
+      <div data-reveal style="opacity:0; transform:translateY(40px); flex:1 1 380px; min-width:300px;">
+        <span style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:#c2ff3a;">[ 04 — Booking ]</span>
+        <h2 style="font-family:'Anton',sans-serif; text-transform:uppercase; margin:16px 0 0; font-size:clamp(40px,6.5vw,100px); line-height:.85;">Lust auf<br>Lärm?</h2>
+        <p style="margin:28px 0 0; font-size:17px; line-height:1.7; color:#bdbbb2; font-weight:300; max-width:440px;">Festival, Club, Kindergeburtstag mit Anspruch — wir bringen die Band. Schreib uns, wir melden uns mit voller Lautstärke zurück.</p>
+        <a href="mailto:booking@drunkenrecords.com" style="display:inline-flex; align-items:center; gap:12px; margin-top:34px; font-family:'Space Mono',monospace; font-size:clamp(15px,1.8vw,22px); color:#f4f2ec; text-decoration:none; transition:color .3s;" style-hover="color:var(--accent,#c2ff3a);"><span style="width:9px;height:9px;border-radius:50%;background:var(--accent,#c2ff3a);box-shadow:0 0 10px var(--accent,#c2ff3a);"></span>booking@drunkenrecords.com</a>
+      </div>
+
+      <form data-reveal onSubmit="{{ onSubmit }}" style="opacity:0; transform:translateY(40px); flex:1 1 380px; min-width:300px; display:flex; flex-direction:column; gap:24px;">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <label style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#8c8a82;">Name</label>
+          <input type="text" placeholder="Dein Name" style="background:transparent; border:none; border-bottom:1px solid rgba(255,255,255,.18); color:#f4f2ec; padding:11px 2px; font-size:16px; outline:none; transition:border-color .3s;" style-focus="border-color:var(--accent,#c2ff3a);" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <label style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#8c8a82;">E-Mail</label>
+          <input type="email" placeholder="du@example.com" style="background:transparent; border:none; border-bottom:1px solid rgba(255,255,255,.18); color:#f4f2ec; padding:11px 2px; font-size:16px; outline:none; transition:border-color .3s;" style-focus="border-color:var(--accent,#c2ff3a);" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <label style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#8c8a82;">Nachricht</label>
+          <textarea rows="3" placeholder="Welche Band, welcher Anlass?" style="background:transparent; border:none; border-bottom:1px solid rgba(255,255,255,.18); color:#f4f2ec; padding:11px 2px; font-size:16px; outline:none; resize:vertical; transition:border-color .3s; font-family:inherit;" style-focus="border-color:var(--accent,#c2ff3a);"></textarea>
+        </div>
+        <button type="submit" style="align-self:flex-start; margin-top:6px; background:var(--accent,#c2ff3a); color:#0a0a0b; border:none; padding:16px 34px; border-radius:4px; font-weight:600; font-size:15px; letter-spacing:.02em; cursor:none; transition:transform .3s, box-shadow .3s;" style-hover="transform:translateY(-3px); box-shadow:0 14px 38px rgba(194,255,58,.32);">Anfrage senden →</button>
+        <span ref="{{ sentRef }}" style="display:none; font-family:'Space Mono',monospace; font-size:13px; color:var(--accent,#c2ff3a);">✓ Prost! Anfrage notiert — wir melden uns.</span>
+      </form>
+    </div>
+  </section>
+
+  <footer style="position:relative; padding:60px 6vw 50px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;">
+    <div style="display:flex; align-items:baseline; gap:10px;">
+      <span style="width:10px; height:10px; border-radius:50%; background:var(--accent,#c2ff3a); align-self:center;"></span>
+      <span style="font-family:'Anton',sans-serif; font-size:20px; letter-spacing:.04em; text-transform:uppercase;">Drunken Records</span>
+    </div>
+    <div style="display:flex; gap:22px; flex-wrap:wrap;">
+      <a href="#bands" style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#8c8a82; text-decoration:none; transition:color .3s;" style-hover="color:var(--accent,#c2ff3a);">Instagram</a>
+      <a href="#bands" style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#8c8a82; text-decoration:none; transition:color .3s;" style-hover="color:var(--accent,#c2ff3a);">Spotify</a>
+      <a href="#bands" style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#8c8a82; text-decoration:none; transition:color .3s;" style-hover="color:var(--accent,#c2ff3a);">YouTube</a>
+      <a href="#bands" style="font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#8c8a82; text-decoration:none; transition:color .3s;" style-hover="color:var(--accent,#c2ff3a);">Bandcamp</a>
+    </div>
+    <span style="font-family:'Space Mono',monospace; font-size:12px; color:#5c5a54; letter-spacing:.08em;">© {{ year }} · Made with stout</span>
+  </footer>
+</div>
+
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="#0a0a0b"/>
+    <circle cx="50" cy="42" r="13" fill="none" stroke="#c2ff3a" stroke-width="3"/>
+    <text x="50" y="72" font-family="Arial, sans-serif" font-weight="900" font-size="22" fill="#c2ff3a" text-anchor="middle">DR</text>
+  </svg>
+</template></x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;accentColor&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#c2ff3a&quot;, &quot;options&quot;: [&quot;#c2ff3a&quot;, &quot;#ff7a3d&quot;, &quot;#3de0ff&quot;, &quot;#e8c477&quot;, &quot;#ff3d6e&quot;], &quot;tsType&quot;: &quot;string&quot; },
+  &quot;showGrain&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
+}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.rootRef = React.createRef();
+    this.glowRef = React.createRef();
+    this.navRef = React.createRef();
+    this.sentRef = React.createRef();
+  }
+
+  renderVals() {
+    return {
+      rootRef: this.rootRef,
+      glowRef: this.glowRef,
+      navRef: this.navRef,
+      sentRef: this.sentRef,
+      year: new Date().getFullYear(),
+      onSubmit: (e) => {
+        e.preventDefault();
+        if (this.sentRef.current) this.sentRef.current.style.display = 'block';
+      },
+      releases: [
+        { slug: 'eyirish-1', artist: 'Eyirish', note: 'Auf allen Plattformen', url: 'https://open.spotify.com/intl-de/artist/7cc1XBu3FdO1r8iqx9MRxO' },
+        { slug: 'null5er-1', artist: '0,5er', note: 'Auf allen Plattformen', url: 'https://open.spotify.com/intl-de/artist/0Vj9eTq3IH9zbX0k9Q4GzJ' },
+        { slug: 'papibaras-1', artist: 'Die PapiBaras', note: 'Auf allen Plattformen', url: 'https://open.spotify.com/search/PapiBaras' },
+        { slug: 'eyirish-2', artist: 'Eyirish', note: 'Single / EP', url: 'https://open.spotify.com/intl-de/artist/7cc1XBu3FdO1r8iqx9MRxO' },
+        { slug: 'null5er-2', artist: '0,5er', note: 'Single / EP', url: 'https://open.spotify.com/intl-de/artist/0Vj9eTq3IH9zbX0k9Q4GzJ' },
+        { slug: 'papibaras-2', artist: 'Die PapiBaras', note: 'Single / EP', url: 'https://open.spotify.com/search/PapiBaras' }
+      ]
+    };
+  }
+
+  applyProps() {
+    const root = this.rootRef.current;
+    if (!root) return;
+    const accent = this.props.accentColor || '#c2ff3a';
+    root.style.setProperty('--accent', accent);
+    const grainOn = this.props.showGrain ?? true;
+    const g = root.querySelector('[data-grain]');
+    if (g) g.style.display = grainOn ? 'block' : 'none';
+  }
+
+  componentDidUpdate() {
+    this.applyProps();
+  }
+
+  componentDidMount() {
+    const root = this.rootRef.current;
+    if (!root) return;
+    this.applyProps();
+
+    // Scroll reveals
+    const els = Array.from(root.querySelectorAll('[data-reveal]'));
+    els.forEach((el) => {
+      el.style.transition = 'opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1)';
+    });
+    const reveal = (el) => { el.style.opacity = '1'; el.style.transform = 'none'; };
+    if ('IntersectionObserver' in window) {
+      this._io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { reveal(e.target); this._io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      els.forEach((el) => this._io.observe(el));
+    } else {
+      els.forEach(reveal);
+    }
+    this._fallback = setTimeout(() => els.forEach(reveal), 3000);
+
+    // Counters
+    const counters = Array.from(root.querySelectorAll('[data-count]'));
+    const runCount = (el) => {
+      const target = parseFloat(el.getAttribute('data-count')) || 0;
+      const suffix = el.getAttribute('data-suffix') || '';
+      const dur = 1700;
+      const start = performance.now();
+      const step = (now) => {
+        const p = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(target * eased) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    if ('IntersectionObserver' in window) {
+      this._cio = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { runCount(e.target); this._cio.unobserve(e.target); }
+        });
+      }, { threshold: 0.5 });
+      counters.forEach((c) => this._cio.observe(c));
+    } else {
+      counters.forEach(runCount);
+    }
+
+    // Cursor glow + blob parallax
+    this._onMove = (ev) => {
+      if (this.glowRef.current) {
+        this.glowRef.current.style.left = ev.clientX + 'px';
+        this.glowRef.current.style.top = ev.clientY + 'px';
+      }
+      const bx = ev.clientX / window.innerWidth - 0.5;
+      const by = ev.clientY / window.innerHeight - 0.5;
+      root.querySelectorAll('[data-blob]').forEach((b, i) => {
+        const f = (i + 1) * 16;
+        b.style.transform = `translate(${bx * f}px, ${by * f}px)`;
+      });
+    };
+    window.addEventListener('mousemove', this._onMove, { passive: true });
+
+    // Nav background + scroll progress
+    this._onScroll = () => {
+      const scrolled = window.scrollY > 40;
+      if (this.navRef.current) {
+        const n = this.navRef.current;
+        n.style.background = scrolled ? 'rgba(10,10,11,.82)' : 'transparent';
+        n.style.backdropFilter = scrolled ? 'blur(14px)' : 'none';
+        n.style.webkitBackdropFilter = scrolled ? 'blur(14px)' : 'none';
+        n.style.borderColor = scrolled ? 'rgba(255,255,255,.08)' : 'transparent';
+      }
+      const bar = root.querySelector('[data-progress]');
+      if (bar) {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        const p = h > 0 ? window.scrollY / h : 0;
+        bar.style.transform = `scaleX(${p})`;
+      }
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onScroll();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('mousemove', this._onMove);
+    window.removeEventListener('scroll', this._onScroll);
+    if (this._io) this._io.disconnect();
+    if (this._cio) this._cio.disconnect();
+    clearTimeout(this._fallback);
+  }
+}
+</script>
+</body>
+</html>
