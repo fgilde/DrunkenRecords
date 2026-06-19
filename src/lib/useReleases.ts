@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BANDS } from '../data/bands'
-import type { ReleasesResponse } from '../../functions/api/releases'
+import type { ReleasesResponse } from '../../worker/releases'
 
 // Fallback aus den Stammdaten, falls /api/releases (noch) nicht erreichbar ist.
 function fallback(): ReleasesResponse {

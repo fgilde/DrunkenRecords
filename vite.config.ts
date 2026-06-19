@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { computeReleases } from './functions/api/releases'
+import { computeReleases } from './worker/releases'
 
 // Dev-only: serviert /api/releases lokal (npm run dev), damit die echte
 // Release-Logik ohne wrangler getestet werden kann. In Produktion übernimmt

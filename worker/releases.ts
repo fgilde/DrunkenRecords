@@ -1,8 +1,6 @@
-// Cloudflare Pages Function: ermittelt die echten Release-Zahlen (Alben + Singles)
-// der drei Bands über die iTunes-Lookup-API — keyless, kein API-Key nötig.
-//
-// Die reine Logik (computeReleases) wird auch vom Vite-Dev-Server genutzt
-// (siehe vite.config.ts), damit `npm run dev` ohne wrangler funktioniert.
+// Geteilte Logik: ermittelt die echten Release-Zahlen (Alben + Singles) der drei
+// Bands über die iTunes-Lookup-API — keyless, kein API-Key nötig.
+// Wird vom Worker (worker/index.ts) UND vom Vite-Dev-Server (vite.config.ts) genutzt.
 
 export interface BandReleases {
   key: string
@@ -30,8 +28,8 @@ interface ITunesItem {
   trackCount?: number
 }
 
-// Single = Name endet auf "- Single"/"- EP" wird als Album gezählt;
-// alles mit mehr als einem Track gilt als Album/EP.
+// Single = Name endet auf "- Single" oder hat höchstens einen Track;
+// alles andere (mehr Tracks, EPs) zählt als Album.
 function classify(items: ITunesItem[]): { albums: number; singles: number } {
   let albums = 0
   let singles = 0
@@ -48,7 +46,7 @@ function classify(items: ITunesItem[]): { albums: number; singles: number } {
 async function fetchArtist(appleArtistId: number): Promise<{ albums: number; singles: number }> {
   const url = `https://itunes.apple.com/lookup?id=${appleArtistId}&entity=album&limit=200&country=DE`
   const res = await fetch(url, {
-    headers: { 'user-agent': 'DrunkenRecords/1.0 (+https://drunkenrecords.com)' },
+    headers: { 'user-agent': 'DrunkenRecords/1.0 (+https://drunkenrecords.de)' },
   })
   if (!res.ok) throw new Error(`iTunes ${res.status}`)
   const data = (await res.json()) as { results?: ITunesItem[] }
@@ -69,32 +67,4 @@ export async function computeReleases(): Promise<ReleasesResponse> {
   })
   totals.total = totals.albums + totals.singles
   return { bands, totals, updatedAt: new Date().toISOString() }
-}
-
-// Cloudflare Pages Function Entry. Edge-Cache ~1h über Cache API + Cache-Control,
-// damit iTunes nicht bei jedem Aufruf getroffen wird.
-export const onRequest = async (context: {
-  request: Request
-  waitUntil: (p: Promise<unknown>) => void
-}): Promise<Response> => {
-  const cf = globalThis as unknown as { caches?: { default?: Cache } }
-  const cache = cf.caches?.default
-  const cacheKey = new URL('/api/releases', context.request.url).toString()
-
-  if (cache) {
-    const hit = await cache.match(cacheKey)
-    if (hit) return hit
-  }
-
-  const data = await computeReleases()
-  const res = new Response(JSON.stringify(data), {
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'public, max-age=600, s-maxage=3600',
-      'access-control-allow-origin': '*',
-    },
-  })
-
-  if (cache) context.waitUntil(cache.put(cacheKey, res.clone()))
-  return res
 }

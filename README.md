@@ -1,7 +1,7 @@
 # DrunkenRecords
 
 Website für das Independent Music Label **DrunkenRecords** — schwarz, cinematisch, neon, voll animiert.
-Echte **Vite + React + TypeScript**-App, deploybar auf **Cloudflare Pages**.
+Echte **Vite + React + TypeScript**-App, deployt als **Cloudflare Worker mit Static Assets**.
 
 ## Bands
 - **Eyirish** — Irish Punk · Rock · Folk
@@ -10,13 +10,14 @@ Echte **Vite + React + TypeScript**-App, deploybar auf **Cloudflare Pages**.
 
 ## Features
 - **Echte Release-Zahlen** (Alben + Singles) je Band — live von der iTunes/Apple-Music-API,
-  ohne API-Key, über eine Cloudflare Pages Function (`functions/api/releases.ts`).
+  ohne API-Key, über den Worker (`/api/releases`).
 - **Echte YouTube-Video-Übersicht** je Band — keyless eingebettete Uploads-Playlists.
 - **audiola.de-Promo** — bewirbt das hauseigene, kostenlose Audio-Tool mit großem Logo.
 
 ## Tech-Stack
-- [Vite](https://vitejs.dev/) + [React 18](https://react.dev/) + TypeScript
-- Cloudflare Pages (statischer Build) + Pages Functions (Serverless-API)
+- [Vite](https://vitejs.dev/) + [React 18](https://react.dev/) + TypeScript (statischer Build → `dist/`)
+- [Cloudflare Worker mit Static Assets](https://developers.cloudflare.com/workers/static-assets/):
+  der Worker serviert `dist/` und beantwortet `/api/releases` dynamisch.
 
 ## Lokal entwickeln
 ```bash
@@ -26,31 +27,41 @@ npm run dev
 Der Vite-Dev-Server serviert auch `/api/releases` lokal (siehe `vite.config.ts`), sodass die echten
 Release-Zahlen ohne weiteres Setup funktionieren.
 
-Optional die Pages Function realitätsnah testen (nach `npm run build`):
+Den echten Worker (inkl. Static-Assets-Routing) lokal testen:
 ```bash
-npm run pages:dev
+npm run build
+npm run cf:dev          # = wrangler dev  ->  http://127.0.0.1:8787
 ```
 
-## Build
+## Build & Deploy
 ```bash
-npm run build      # tsc --noEmit && vite build -> dist/
-npm run preview    # gebautes dist/ lokal ansehen
+npm run build           # tsc --noEmit && vite build -> dist/
+npm run deploy          # build + wrangler deploy
 ```
 
-## Deployment auf Cloudflare Pages
-1. Repo mit Cloudflare Pages verbinden (Git-Integration) oder via Wrangler hochladen.
-2. Build-Einstellungen:
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-3. Functions werden automatisch aus dem `functions/`-Verzeichnis übernommen
-   (`/api/releases`). `public/_routes.json` sorgt dafür, dass nur `/api/*` die Function
-   trifft und alles andere statisch ausgeliefert wird.
+## Deployment auf Cloudflare (Workers Builds / Git-Integration)
+Das Projekt ist ein **Worker mit Static Assets**, konfiguriert über `wrangler.jsonc`
+(Worker-Name `drunkenrecords`, Assets aus `./dist`, Binding `ASSETS`).
 
-Es sind **keine Secrets / API-Keys** nötig — alle Datenquellen sind keyless.
+In den Build-Einstellungen des Workers (Einstellungen → Erstellen → Build-Konfiguration):
+
+| Feld | Wert |
+| --- | --- |
+| **Build-Befehl** | `npm run build` |
+| **Bereitstellungsbefehl** (Deploy command) | `npx wrangler deploy` |
+| **Stammverzeichnis / Pfad** (Root directory) | *(leer / `/`)* — **nicht** `/dist` |
+
+> ⚠️ `/dist` ist das Build-**Ausgabeverzeichnis**, nicht die Repo-Wurzel. Steht es im Feld
+> „Stammverzeichnis/Pfad", schlägt der Build mit *„root directory not found"* fehl. Den Pfad
+> zur Wurzel (leer) setzen — das `dist/`-Verzeichnis kennt Cloudflare aus `wrangler.jsonc`.
+
+Es sind **keine Secrets / API-Keys** nötig — alle Datenquellen sind keyless. Die `drunkenrecords.de`-
+Domain bleibt über die bestehende Worker-Route verbunden.
 
 ## Projektstruktur
 ```
 index.html              # Vite-Entry (Fonts, Meta, #root)
+wrangler.jsonc          # Cloudflare Worker + Static-Assets-Konfiguration
 src/
   main.tsx              # React-Mount
   App.tsx               # Seitenkomposition
@@ -59,15 +70,15 @@ src/
   hooks/useDrunkenFx.ts # Cursor-Glow, Parallax, Scroll-Progress, Reveals
   lib/useReleases.ts    # Fetch der Release-Zahlen (mit Fallback)
   components/           # Nav, Hero, Marquee, Bands, Releases, Videos, Story, AudiolaPromo, Booking, Footer ...
-functions/
-  api/releases.ts       # Cloudflare Pages Function: echte Release-Zahlen via iTunes
-public/_routes.json     # Cloudflare-Routing (nur /api/* -> Function)
+worker/
+  index.ts              # Worker-Entry: /api/releases + Static-Assets-Fallback
+  releases.ts           # echte Release-Zahlen via iTunes (auch vom Dev-Server genutzt)
 legacy/                 # ursprüngliche Design-Component-Dateien (Archiv)
 ```
 
 ## Datenquellen
 - **Releases:** `https://itunes.apple.com/lookup?id=<appleArtistId>&entity=album` — Alben/Singles
-  werden über Trackanzahl und „… - Single"-Namenskonvention klassifiziert.
+  werden über Trackanzahl und „… - Single"-Namenskonvention klassifiziert (`worker/releases.ts`).
 - **Videos:** YouTube-Uploads-Playlist je Kanal (`UC…` → `UU…`), eingebettet über
   `youtube-nocookie.com`.
 
