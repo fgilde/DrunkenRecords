@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 
 // Zieladresse für Band-Vorstellungen / Demos.
 // HINWEIS: Stelle sicher, dass dieses Postfach existiert (oder ändere die Adresse).
-const SUBMIT_EMAIL = 'demos@drunkenrecords.com'
+const SUBMIT_EMAIL = 'demos@drunkenrecords.de'
 
 interface Service {
   icon: string

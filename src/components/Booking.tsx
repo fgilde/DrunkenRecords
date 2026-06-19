@@ -23,9 +23,9 @@ export default function Booking() {
             Festival, Club, Kindergeburtstag mit Anspruch — wir bringen die Band. Schreib uns, wir
             melden uns mit voller Lautstärke zurück.
           </p>
-          <a href="mailto:booking@drunkenrecords.com" className="dr-booking-mail">
+          <a href="mailto:booking@drunkenrecords.de" className="dr-booking-mail">
             <span className="dr-booking-mail-dot" />
-            booking@drunkenrecords.com
+            booking@drunkenrecords.de
           </a>
         </div>
 
