@@ -35,9 +35,6 @@ export interface Band {
   releaseTag: string
   spotifyArtistId: string
   appleArtistId: number
-  youtubeChannelId: string
-  /** Uploads-Playlist = Kanal-ID mit UC -> UU (für keyless Embed). */
-  uploadsPlaylistId: string
   website: string
   links: PlatformLink[]
   /** Fallback-Zahlen, falls die Live-API nicht erreichbar ist (Stand 2026-06). */
@@ -68,8 +65,6 @@ export const BANDS: Band[] = [
     releaseTag: 'Irish Punk',
     spotifyArtistId: '7cc1XBu3FdO1r8iqx9MRxO',
     appleArtistId: 1755193672,
-    youtubeChannelId: 'UCXT5-iCTs2GZVINjJsVZjQw',
-    uploadsPlaylistId: 'UUXT5-iCTs2GZVINjJsVZjQw',
     website: 'https://www.eyirish.de',
     links: [
       { label: 'Spotify', href: 'https://open.spotify.com/intl-de/artist/7cc1XBu3FdO1r8iqx9MRxO' },
@@ -105,8 +100,6 @@ export const BANDS: Band[] = [
     releaseTag: 'Deutschpop',
     spotifyArtistId: '0Vj9eTq3IH9zbX0k9Q4GzJ',
     appleArtistId: 1750242664,
-    youtubeChannelId: 'UCU6n-cFsjVpSyUvKEx72kww',
-    uploadsPlaylistId: 'UUU6n-cFsjVpSyUvKEx72kww',
     website: 'https://www.null5er.de',
     links: [
       { label: 'Spotify', href: 'https://open.spotify.com/intl-de/artist/0Vj9eTq3IH9zbX0k9Q4GzJ' },
@@ -142,8 +135,6 @@ export const BANDS: Band[] = [
     releaseTag: 'Familienrock',
     spotifyArtistId: '6jn0ANUkdqKGqWcr819Jew',
     appleArtistId: 6780271557,
-    youtubeChannelId: 'UCYZOsBnLVeQCCpXAG0E6Phw',
-    uploadsPlaylistId: 'UUYZOsBnLVeQCCpXAG0E6Phw',
     website: 'https://papibaras.de',
     links: [
       { label: 'Spotify', href: 'https://open.spotify.com/intl-de/artist/6jn0ANUkdqKGqWcr819Jew' },

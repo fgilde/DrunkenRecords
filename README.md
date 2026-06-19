@@ -11,7 +11,8 @@ Echte **Vite + React + TypeScript**-App, deployt als **Cloudflare Worker mit Sta
 ## Features
 - **Echte Release-Zahlen** (Alben + Singles) je Band — live von der iTunes/Apple-Music-API,
   ohne API-Key, über den Worker (`/api/releases`).
-- **Echte YouTube-Video-Übersicht** je Band — keyless eingebettete Uploads-Playlists.
+- **Echte YouTube-Musikvideos** je Band — neuestes Video eingebettet + „Alle Videos"-Modal
+  mit allen Clips (keyless via RSS der „- Topic"-Kanäle, daher nur Musik).
 - **audiola.de-Promo** — bewirbt das hauseigene, kostenlose Audio-Tool mit großem Logo.
 
 ## Tech-Stack
@@ -69,18 +70,21 @@ src/
   styles/global.css     # gesamtes Design (Keyframes, Hover/Focus)
   hooks/useDrunkenFx.ts # Cursor-Glow, Parallax, Scroll-Progress, Reveals
   lib/useReleases.ts    # Fetch der Release-Zahlen (mit Fallback)
-  components/           # Nav, Hero, Marquee, Bands, Releases, Videos, Story, AudiolaPromo, Booking, Footer ...
+  lib/useVideos.ts      # Fetch der Musikvideos
+  components/           # Nav, Hero, Marquee, Bands, Releases, Videos, VideoModal, Story, AudiolaPromo, Booking, Footer ...
 worker/
-  index.ts              # Worker-Entry: /api/releases + Static-Assets-Fallback
+  index.ts              # Worker-Entry: /api/releases, /api/videos + Static-Assets-Fallback
   releases.ts           # echte Release-Zahlen via iTunes (auch vom Dev-Server genutzt)
+  videos.ts             # Musikvideos via YouTube-RSS (auch vom Dev-Server genutzt)
 legacy/                 # ursprüngliche Design-Component-Dateien (Archiv)
 ```
 
 ## Datenquellen
 - **Releases:** `https://itunes.apple.com/lookup?id=<appleArtistId>&entity=album` — Alben/Singles
   werden über Trackanzahl und „… - Single"-Namenskonvention klassifiziert (`worker/releases.ts`).
-- **Videos:** YouTube-Uploads-Playlist je Kanal (`UC…` → `UU…`), eingebettet über
-  `youtube-nocookie.com`.
+- **Videos:** YouTube-RSS-Feed je Kanal (`feeds/videos.xml?channel_id=…`, `worker/videos.ts`).
+  Für Eyirish wird der **„Eyirish - Topic"-Kanal** genutzt (nur Musik) statt `@eyirish`
+  (enthält fremde AmbiWall-Videos). Wiedergabe über `youtube-nocookie.com`.
 
 ## Legacy
 Die ursprünglich mit Claude Design erstellte Version (Design-Component-Format) liegt unter
