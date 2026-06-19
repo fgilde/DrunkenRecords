@@ -3,6 +3,7 @@ const NAV_LINKS = [
   { href: '#releases', label: 'Releases' },
   { href: '#videos', label: 'Videos' },
   { href: '#story', label: 'Story' },
+  { href: '#join', label: 'Mitmachen' },
 ]
 
 export default function Nav() {

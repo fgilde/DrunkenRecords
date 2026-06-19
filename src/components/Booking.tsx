@@ -13,7 +13,7 @@ export default function Booking() {
       <div data-blob className="dr-booking-blob" />
       <div className="dr-booking-inner">
         <div className="dr-reveal dr-booking-text">
-          <span className="dr-eyebrow">[ 05 — Booking ]</span>
+          <span className="dr-eyebrow">[ 06 — Booking ]</span>
           <h2 className="dr-booking-title">
             Lust auf
             <br />

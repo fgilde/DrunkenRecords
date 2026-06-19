@@ -6,6 +6,7 @@ import Bands from './components/Bands'
 import Releases from './components/Releases'
 import Videos from './components/Videos'
 import Story from './components/Story'
+import Join from './components/Join'
 import AudiolaPromo from './components/AudiolaPromo'
 import Booking from './components/Booking'
 import Footer from './components/Footer'
@@ -28,6 +29,7 @@ export default function App() {
       <Releases />
       <Videos />
       <Story />
+      <Join />
       <AudiolaPromo />
       <Booking />
       <Footer />
