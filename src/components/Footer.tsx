@@ -20,7 +20,12 @@ export default function Footer() {
           audiola.de
         </a>
       </div>
-      <span className="dr-footer-copy">© {year} · Made with stout</span>
+      <span className="dr-footer-copy">
+        © {year} · Made with stout by{' '}
+        <a href="https://www.gilde.org" target="_blank" rel="noopener">
+          gilde.org
+        </a>
+      </span>
     </footer>
   )
 }

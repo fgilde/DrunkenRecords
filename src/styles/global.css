@@ -1286,6 +1286,14 @@ button {
   color: #5c5a54;
   letter-spacing: 0.08em;
 }
+.dr-footer-copy a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: opacity 0.25s;
+}
+.dr-footer-copy a:hover {
+  opacity: 0.75;
+}
 
 /* ---------- Mobile feinschliff ---------- */
 @media (max-width: 720px) {
