@@ -9,6 +9,10 @@ interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> }
 }
 
+// Bei jeder Änderung der API-Logik hochzählen -> alte Edge-Cache-Einträge
+// werden dadurch sofort ungültig (neuer Key), statt bis zum TTL zu warten.
+const CACHE_VERSION = '2'
+
 async function cachedJson(
   request: Request,
   path: string,
@@ -16,7 +20,7 @@ async function cachedJson(
 ): Promise<Response> {
   const cf = globalThis as unknown as { caches?: { default?: Cache } }
   const cache = cf.caches?.default
-  const cacheKey = new URL(path, new URL(request.url).origin).toString()
+  const cacheKey = new URL(`${path}?v=${CACHE_VERSION}`, new URL(request.url).origin).toString()
 
   if (cache) {
     const hit = await cache.match(cacheKey)
