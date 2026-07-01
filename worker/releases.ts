@@ -29,13 +29,19 @@ interface ITunesItem {
 }
 
 // Single = Name endet auf "- Single" oder hat höchstens einen Track;
-// alles andere (mehr Tracks, EPs) zählt als Album.
+// alles andere (mehr Tracks, EPs) zählt als Album. Dieselbe Veröffentlichung
+// (identischer Titel, z. B. mehrere Editionen desselben Albums) wird nur
+// einmal gezählt.
 function classify(items: ITunesItem[]): { albums: number; singles: number } {
+  const seen = new Set<string>()
   let albums = 0
   let singles = 0
   for (const it of items) {
     if (it.wrapperType !== 'collection') continue
-    const name = it.collectionName ?? ''
+    const name = (it.collectionName ?? '').trim()
+    const key = name.toLowerCase()
+    if (!name || seen.has(key)) continue
+    seen.add(key)
     const isSingle = /-\s*single\s*$/i.test(name) || (it.trackCount ?? 0) <= 1
     if (isSingle) singles++
     else albums++
@@ -45,12 +51,21 @@ function classify(items: ITunesItem[]): { albums: number; singles: number } {
 
 async function fetchArtist(appleArtistId: number): Promise<{ albums: number; singles: number }> {
   const url = `https://itunes.apple.com/lookup?id=${appleArtistId}&entity=album&limit=200&country=DE`
-  const res = await fetch(url, {
-    headers: { 'user-agent': 'DrunkenRecords/1.0 (+https://drunkenrecords.de)' },
-  })
-  if (!res.ok) throw new Error(`iTunes ${res.status}`)
-  const data = (await res.json()) as { results?: ITunesItem[] }
-  return classify(data.results ?? [])
+  // Ein Retry gegen sporadische iTunes-Aussetzer (sonst fehlt gelegentlich eine Band).
+  let lastErr: unknown
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { 'user-agent': 'DrunkenRecords/1.0 (+https://drunkenrecords.de)' },
+      })
+      if (!res.ok) throw new Error(`iTunes ${res.status}`)
+      const data = (await res.json()) as { results?: ITunesItem[] }
+      return classify(data.results ?? [])
+    } catch (err) {
+      lastErr = err
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error('iTunes fetch failed')
 }
 
 export async function computeReleases(): Promise<ReleasesResponse> {

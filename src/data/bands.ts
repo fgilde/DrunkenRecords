@@ -144,6 +144,6 @@ export const BANDS: Band[] = [
       { label: 'YouTube', href: 'https://www.youtube.com/channel/UCYZOsBnLVeQCCpXAG0E6Phw' },
       { label: 'papibaras.de ↗', href: 'https://papibaras.de', primary: true },
     ],
-    fallbackReleases: { albums: 0, singles: 1 },
+    fallbackReleases: { albums: 1, singles: 1 },
   },
 ]
