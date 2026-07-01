@@ -39,9 +39,15 @@ export default function Story() {
               <span className="dr-stat-label">Liter Inspiration</span>
             </div>
             <div>
-              <CountUp value={data.totals.total} className="dr-stat-num" />
+              {data ? (
+                <CountUp value={data.totals.total} className="dr-stat-num" />
+              ) : (
+                <div className="dr-stat-num">–</div>
+              )}
               <span className="dr-stat-label">
-                Releases · {data.totals.albums} Alben / {data.totals.singles} Singles
+                {data
+                  ? `Releases · ${data.totals.albums} Alben / ${data.totals.singles} Singles`
+                  : 'Releases gesamt'}
               </span>
             </div>
           </div>

@@ -1,24 +1,11 @@
 import { useEffect, useState } from 'react'
-import { BANDS } from '../data/bands'
 import type { ReleasesResponse } from '../../worker/releases'
 
-// Fallback aus den Stammdaten, falls /api/releases (noch) nicht erreichbar ist.
-function fallback(): ReleasesResponse {
-  const bands: ReleasesResponse['bands'] = {}
-  let albums = 0
-  let singles = 0
-  for (const b of BANDS) {
-    const a = b.fallbackReleases.albums
-    const s = b.fallbackReleases.singles
-    bands[b.key] = { key: b.key, albums: a, singles: s, total: a + s }
-    albums += a
-    singles += s
-  }
-  return { bands, totals: { albums, singles, total: albums + singles }, updatedAt: '' }
-}
+// Einzige Wahrheit sind die Live-Zahlen aus /api/releases (iTunes).
+// Keine hartcodierten Zahlen -> nichts, das je „veraltet". Bei einem seltenen
+// Aussetzer bleibt data null und die UI zeigt „–" statt einer falschen Zahl.
 
-// Geteilter Singleton-Fetch, damit mehrere Komponenten (Releases + Story)
-// nur einen Request auslösen.
+// Geteilter Fetch, damit Releases + Story nur einen Request auslösen.
 let inflight: Promise<ReleasesResponse> | null = null
 function load(): Promise<ReleasesResponse> {
   if (!inflight) {
@@ -31,29 +18,38 @@ function load(): Promise<ReleasesResponse> {
 }
 
 export interface ReleasesState {
-  data: ReleasesResponse
+  data: ReleasesResponse | null
   loading: boolean
 }
 
 export function useReleases(): ReleasesState {
-  const [data, setData] = useState<ReleasesResponse>(fallback)
+  const [data, setData] = useState<ReleasesResponse | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
-    load()
-      .then((d) => {
-        if (!cancelled) {
+    let attempts = 0
+
+    const run = () => {
+      load()
+        .then((d) => {
+          if (cancelled) return
           setData(d)
           setLoading(false)
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          inflight = null // erlaubt erneuten Versuch beim nächsten Mount
-          setLoading(false)
-        }
-      })
+        })
+        .catch(() => {
+          inflight = null // erlaubt einen erneuten Versuch
+          if (cancelled) return
+          attempts += 1
+          if (attempts < 3) {
+            window.setTimeout(run, 1500 * attempts)
+          } else {
+            setLoading(false)
+          }
+        })
+    }
+    run()
+
     return () => {
       cancelled = true
     }

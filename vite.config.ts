@@ -23,6 +23,10 @@ function jsonRoute(compute: () => Promise<unknown>): Connect.SimpleHandleFunctio
 }
 
 export default defineConfig({
+  // Respektiert einen vom Tooling zugewiesenen Port (PORT), sonst 5173.
+  server: {
+    port: Number(process.env.PORT) || 5173,
+  },
   plugins: [
     react(),
     {

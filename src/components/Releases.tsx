@@ -3,7 +3,7 @@ import { BANDS } from '../data/bands'
 import { useReleases } from '../lib/useReleases'
 
 export default function Releases() {
-  const { data, loading } = useReleases()
+  const { data } = useReleases()
 
   return (
     <section id="releases" className="dr-releases">
@@ -21,9 +21,7 @@ export default function Releases() {
 
         <div className="dr-reveal dr-grid">
           {BANDS.map((band) => {
-            const r = data.bands[band.key]
-            const albums = r?.albums ?? band.fallbackReleases.albums
-            const singles = r?.singles ?? band.fallbackReleases.singles
+            const r = data?.bands[band.key]
             return (
               <div key={band.key} style={{ '--band': band.accent } as CSSProperties}>
                 <div className="dr-release-head">
@@ -34,14 +32,14 @@ export default function Releases() {
                   <span className="dr-release-name">{band.name}</span>
                   <span className="dr-release-tag">{band.releaseTag}</span>
                 </div>
-                <div className={`dr-release-counts${loading ? ' is-loading' : ''}`}>
+                <div className={`dr-release-counts${r ? '' : ' is-loading'}`}>
                   <span>
-                    <b>{albums}</b>
-                    {albums === 1 ? 'Album' : 'Alben'}
+                    <b>{r ? r.albums : '–'}</b>
+                    {r && r.albums === 1 ? 'Album' : 'Alben'}
                   </span>
                   <span>
-                    <b>{singles}</b>
-                    {singles === 1 ? 'Single' : 'Singles'}
+                    <b>{r ? r.singles : '–'}</b>
+                    {r && r.singles === 1 ? 'Single' : 'Singles'}
                   </span>
                 </div>
                 <iframe

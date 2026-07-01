@@ -37,8 +37,6 @@ export interface Band {
   appleArtistId: number
   website: string
   links: PlatformLink[]
-  /** Fallback-Zahlen, falls die Live-API nicht erreichbar ist (Stand 2026-06). */
-  fallbackReleases: { albums: number; singles: number }
 }
 
 export const BANDS: Band[] = [
@@ -74,7 +72,6 @@ export const BANDS: Band[] = [
       { label: 'YouTube', href: 'https://www.youtube.com/@eyirish' },
       { label: 'eyirish.de ↗', href: 'https://www.eyirish.de', primary: true },
     ],
-    fallbackReleases: { albums: 2, singles: 9 },
   },
   {
     key: 'null5er',
@@ -109,7 +106,6 @@ export const BANDS: Band[] = [
       { label: 'YouTube', href: 'https://www.youtube.com/channel/UCU6n-cFsjVpSyUvKEx72kww' },
       { label: 'null5er.de ↗', href: 'https://www.null5er.de', primary: true },
     ],
-    fallbackReleases: { albums: 3, singles: 3 },
   },
   {
     key: 'papibaras',
@@ -144,6 +140,5 @@ export const BANDS: Band[] = [
       { label: 'YouTube', href: 'https://www.youtube.com/channel/UCYZOsBnLVeQCCpXAG0E6Phw' },
       { label: 'papibaras.de ↗', href: 'https://papibaras.de', primary: true },
     ],
-    fallbackReleases: { albums: 1, singles: 1 },
   },
 ]
