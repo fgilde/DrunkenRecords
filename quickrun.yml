@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://fgilde.github.io/QuickRun/quickrun.schema.json
+name: Drunken Records
+description: "The Drunken Records site."
+
+requires:
+  - tool: node
+    version: ">=20.0"
+    install: https://nodejs.org
+
+setup:
+  - run: npm ci
+
+tasks:
+  - name: dev
+    run: npm run dev
+    readyWhen: {http: "http://localhost:5173"}
+    open: true
