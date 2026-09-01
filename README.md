@@ -3,6 +3,8 @@
 Website für das Independent Music Label **DrunkenRecords** — schwarz, cinematisch, neon, voll animiert.
 Echte **Vite + React + TypeScript**-App, deployt als **Cloudflare Worker mit Static Assets**.
 
+[![QuickRun](https://quickrun.org/badge.svg)](https://quickrun.org/run?repo=fgilde/DrunkenRecords)
+
 ## Bands
 - **Eyirish** — Irish Punk · Rock · Folk
 - **0,5er** — Deutschpop · Rock · HipHop
