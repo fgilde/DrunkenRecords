@@ -49,7 +49,7 @@ export default function Hero() {
             Bands entdecken →
           </a>
           <a href="#booking" className="dr-btn-ghost">
-            Booking anfragen
+            Kontakt aufnehmen
           </a>
         </div>
       </div>

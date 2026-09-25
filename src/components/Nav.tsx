@@ -21,7 +21,7 @@ export default function Nav() {
           </a>
         ))}
         <a href="#booking" className="dr-nav-cta">
-          Booking
+          Kontakt
         </a>
       </div>
     </nav>

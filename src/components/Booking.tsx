@@ -4,19 +4,19 @@ export default function Booking() {
       <div data-blob className="dr-booking-blob" />
       <div className="dr-booking-inner">
         <div className="dr-reveal dr-booking-text">
-          <span className="dr-eyebrow">[ 06 — Booking ]</span>
+          <span className="dr-eyebrow">[ 06 — Kontakt ]</span>
           <h2 className="dr-booking-title">
             Lust auf
             <br />
             Lärm?
           </h2>
           <p className="dr-booking-p">
-            Festival, Club, Kindergeburtstag mit Anspruch — wir bringen die Band. Schreib uns, wir
-            melden uns mit voller Lautstärke zurück.
+            Booking, Presse, Kooperation oder einfach nur Hallo — egal worum es geht: Schreib uns,
+            wir melden uns mit voller Lautstärke zurück.
           </p>
-          <a href="mailto:booking@drunkenrecords.de" className="dr-booking-mail">
+          <a href="mailto:contact@drunkenrecords.de" className="dr-booking-mail">
             <span className="dr-booking-mail-dot" />
-            booking@drunkenrecords.de
+            contact@drunkenrecords.de
           </a>
         </div>
 
@@ -27,11 +27,10 @@ export default function Booking() {
             language="de"
             theme="dark"
             accent="#c2ff3a"
-            title="Booking-Anfrage"
+            title="Schreib uns"
             show-description="false"
             show-homepage="false"
-            subject-prefix="Booking"
-            success-text="Prost! Anfrage ist raus — wir melden uns."
+            success-text="Prost! Nachricht ist raus — wir melden uns."
           ></gilde-contact>
         </div>
       </div>
