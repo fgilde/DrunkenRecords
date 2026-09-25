@@ -30,6 +30,7 @@ export default function Booking() {
             title="Schreib uns"
             show-description="false"
             show-homepage="false"
+            show-footer="false"
             success-text="Prost! Nachricht ist raus — wir melden uns."
           ></gilde-contact>
         </div>
