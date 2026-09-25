@@ -1,13 +1,4 @@
-import { useState, type FormEvent } from 'react'
-
 export default function Booking() {
-  const [sent, setSent] = useState(false)
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setSent(true)
-  }
-
   return (
     <section id="booking" className="dr-booking">
       <div data-blob className="dr-booking-blob" />
@@ -29,30 +20,20 @@ export default function Booking() {
           </a>
         </div>
 
-        <form className="dr-reveal dr-form" onSubmit={onSubmit}>
-          <div className="dr-field">
-            <label className="dr-label">Name</label>
-            <input className="dr-input" type="text" placeholder="Dein Name" />
-          </div>
-          <div className="dr-field">
-            <label className="dr-label">E-Mail</label>
-            <input className="dr-input" type="email" placeholder="du@example.com" />
-          </div>
-          <div className="dr-field">
-            <label className="dr-label">Nachricht</label>
-            <textarea
-              className="dr-input dr-textarea"
-              rows={3}
-              placeholder="Welche Band, welcher Anlass?"
-            />
-          </div>
-          <button type="submit" className="dr-form-submit">
-            Anfrage senden →
-          </button>
-          {sent && (
-            <span className="dr-form-sent">✓ Prost! Anfrage notiert — wir melden uns.</span>
-          )}
-        </form>
+        <div className="dr-reveal dr-form">
+          <gilde-contact
+            project="p_6ab0675ac41b435ba1da3011f63dcbf0"
+            inline=""
+            language="de"
+            theme="dark"
+            accent="#c2ff3a"
+            title="Booking-Anfrage"
+            show-description="false"
+            show-homepage="false"
+            subject-prefix="Booking"
+            success-text="Prost! Anfrage ist raus — wir melden uns."
+          ></gilde-contact>
+        </div>
       </div>
     </section>
   )
