@@ -3,7 +3,7 @@ export default function Footer() {
   return (
     <footer className="dr-footer">
       <div className="dr-footer-brand">
-        <span className="dr-footer-brand-dot" />
+        <img className="dr-footer-logo" src="/logo-160.webp" alt="" width="56" height="56" />
         <span className="dr-footer-brand-name">Drunken Records</span>
       </div>
       <div className="dr-footer-links">

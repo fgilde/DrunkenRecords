@@ -202,14 +202,14 @@ button {
   text-decoration: none;
   color: #f4f2ec;
 }
-.dr-logo-dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent);
-  animation: dr-pulse 2.2s ease-in-out infinite;
+.dr-logo-img {
+  width: 40px;
+  height: 40px;
   align-self: center;
+  transition: transform 0.4s;
+}
+.dr-logo:hover .dr-logo-img {
+  transform: rotate(-12deg) scale(1.08);
 }
 .dr-logo-name {
   font-family: 'Anton', sans-serif;
@@ -360,32 +360,24 @@ button {
     0 0 90px rgba(194, 255, 58, 0.12);
   animation: dr-spin 6s linear infinite;
 }
-.dr-vinyl-label {
+.dr-vinyl-logo {
   position: absolute;
-  inset: 32%;
-}
-.dr-vinyl-arc-text {
-  font-family: 'Space Mono', monospace;
-  font-size: 12.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  fill: #0a0a0b;
-}
-.dr-vinyl-dr {
-  font-family: 'Anton', sans-serif;
-  font-size: 48px;
-  fill: #0a0a0b;
+  inset: 17%;
+  width: 66%;
+  height: 66%;
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.75));
+  animation: dr-float 9s ease-in-out infinite;
 }
 .dr-vinyl-arm {
   position: absolute;
   top: -4%;
   right: 2%;
   width: 6px;
-  height: 58%;
+  height: 50%;
   border-radius: 3px;
   background: linear-gradient(#d8d6ce, #7c7a72);
   transform-origin: 50% 0;
-  transform: rotate(24deg);
+  transform: rotate(14deg);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 .dr-vinyl-arm::before {
@@ -1326,11 +1318,9 @@ button {
   align-items: baseline;
   gap: 10px;
 }
-.dr-footer-brand-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent);
+.dr-footer-logo {
+  width: 56px;
+  height: 56px;
   align-self: center;
 }
 .dr-footer-brand-name {

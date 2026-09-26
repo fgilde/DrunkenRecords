@@ -6,23 +6,8 @@ export default function Hero() {
       <div className="dr-hero-grid" />
 
       <div className="dr-vinyl-wrap" aria-hidden="true">
-        <div className="dr-vinyl">
-          <svg className="dr-vinyl-label" viewBox="0 0 200 200">
-            <defs>
-              <path id="dr-vinyl-arc" d="M100,100 m-68,0 a68,68 0 1,1 136,0 a68,68 0 1,1 -136,0" />
-            </defs>
-            <circle cx="100" cy="100" r="96" fill="#c2ff3a" />
-            <text className="dr-vinyl-arc-text">
-              <textPath href="#dr-vinyl-arc">
-                Drunken Records · Side A · Est. 2023 · Loud as hell ·
-              </textPath>
-            </text>
-            <text x="100" y="116" textAnchor="middle" className="dr-vinyl-dr">
-              DR
-            </text>
-            <circle cx="100" cy="100" r="5" fill="#0a0a0b" />
-          </svg>
-        </div>
+        <div className="dr-vinyl" />
+        <img className="dr-vinyl-logo" src="/logo-560.webp" alt="" />
         <div className="dr-vinyl-arm" />
       </div>
 
