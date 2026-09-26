@@ -1,15 +1,11 @@
+import Turntable from './Turntable'
+
 export default function Hero() {
   return (
     <section id="top" className="dr-hero">
       <div data-blob className="dr-blob dr-hero-blob-1" />
       <div data-blob className="dr-blob dr-hero-blob-2" />
       <div className="dr-hero-grid" />
-
-      <div className="dr-vinyl-wrap" aria-hidden="true">
-        <div className="dr-vinyl" />
-        <img className="dr-vinyl-logo" src="/logo-560.webp" alt="" />
-        <div className="dr-vinyl-arm" />
-      </div>
 
       <div className="dr-hero-content">
         <div className="dr-eyebrow-row">
@@ -38,6 +34,8 @@ export default function Hero() {
           </a>
         </div>
       </div>
+
+      <Turntable />
 
       <div className="dr-scrollcue">
         <div className="dr-scrollcue-mouse">
