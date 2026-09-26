@@ -1,11 +1,14 @@
+import { useRef } from 'react'
 import Turntable from './Turntable'
 
 export default function Hero() {
+  const viz = useRef<HTMLDivElement>(null)
   return (
     <section id="top" className="dr-hero">
       <div data-blob className="dr-blob dr-hero-blob-1" />
       <div data-blob className="dr-blob dr-hero-blob-2" />
       <div className="dr-hero-grid" />
+      <div ref={viz} className="dr-hero-viz" aria-hidden="true" />
 
       <div className="dr-hero-content">
         <div className="dr-eyebrow-row">
@@ -15,7 +18,7 @@ export default function Hero() {
         <h1 className="dr-hero-title">
           <span>Drunken</span>
           <span className="dr-hero-title-stroke">
-            Records<span className="dr-hero-title-dot">●</span>
+            Records
           </span>
         </h1>
         <p className="dr-hero-lede">
@@ -35,7 +38,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <Turntable />
+      <Turntable vizRef={viz} />
 
       <div className="dr-scrollcue">
         <div className="dr-scrollcue-mouse">

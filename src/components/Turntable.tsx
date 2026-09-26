@@ -1,7 +1,14 @@
-import { useEffect, useReducer, useRef, type PointerEvent as ReactPointerEvent } from 'react'
+import {
+  useEffect,
+  useReducer,
+  useRef,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
+} from 'react'
 import { ALBUMS, coverUrl, trackUrl, type Album } from '../data/albums'
 import { BANDS } from '../data/bands'
 import { Deck } from '../lib/deck'
+import type { HeroViz } from '../lib/heroViz'
 
 // Interaktiver Plattenspieler im Hero:
 // - Cover anklicken = Platte wechseln (startet Track 1)
@@ -20,12 +27,15 @@ const angleAround = (x: number, y: number, cx: number, cy: number) =>
   (Math.atan2(y - cy, x - cx) * 180) / Math.PI
 const wrap180 = (d: number) => ((((d + 180) % 360) + 360) % 360) - 180
 
-export default function Turntable() {
+export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement> }) {
   const [, rerender] = useReducer((n: number) => n + 1, 0)
   const stage = useRef<HTMLDivElement>(null)
   const platter = useRef<HTMLDivElement>(null)
   const arm = useRef<HTMLDivElement>(null)
   const deck = useRef<Deck>()
+  const ring = useRef<HTMLDivElement>(null)
+  const viz = useRef<HeroViz | null>(null)
+  const vizLoading = useRef(false)
   // Veränderlicher Zustand in einem Ref, damit rAF-Loop und Pointer-Handler nie veralten.
   const s = useRef({
     album: null as Album | null,
@@ -40,6 +50,17 @@ export default function Turntable() {
     scratch: null as null | { last: number; t: number; vel: number },
     armDrag: false,
   }).current
+
+  // Audio erst nach Nutzer-Geste starten; Visualisierung wird dabei lazy nachgeladen.
+  const unlock = () => {
+    void deck.current!.unlock().then(async () => {
+      if (vizLoading.current || !vizRef.current || !ring.current) return
+      vizLoading.current = true
+      const { createHeroViz } = await import('../lib/heroViz')
+      viz.current = createHeroViz(deck.current!.output!, vizRef.current, ring.current)
+      rerender()
+    })
+  }
 
   const play = (album: Album, track: number, offset = 0) => {
     const key = `${album.band}/${track}`
@@ -65,12 +86,12 @@ export default function Turntable() {
   }
 
   const selectAlbum = (album: Album) => {
-    void deck.current!.unlock()
+    unlock()
     play(album, 0)
   }
 
   const toggle = () => {
-    void deck.current!.unlock()
+    unlock()
     if (!s.album) return play(ALBUMS[0], 0)
     if (s.needle) return stop()
     s.needle = true
@@ -132,13 +153,18 @@ export default function Turntable() {
     }
   }, [])
 
+  useEffect(() => {
+    if (s.album) viz.current?.setBand(s.album.band)
+    viz.current?.setActive(s.needle && !s.loading)
+  })
+
   // --- Scratchen ---
   const center = () => {
     const r = stage.current!.getBoundingClientRect()
     return { cx: r.left + r.width / 2, cy: r.top + r.height / 2, r }
   }
   const onPlatterDown = (e: ReactPointerEvent) => {
-    void deck.current!.unlock()
+    unlock()
     e.currentTarget.setPointerCapture(e.pointerId)
     const { cx, cy } = center()
     s.scratch = { last: angleAround(e.clientX, e.clientY, cx, cy), t: performance.now(), vel: 0 }
@@ -169,7 +195,7 @@ export default function Turntable() {
     return Math.max(ARM_REST, Math.min(ARM_INNER + 2, a))
   }
   const onArmDown = (e: ReactPointerEvent) => {
-    void deck.current!.unlock()
+    unlock()
     e.stopPropagation()
     e.currentTarget.setPointerCapture(e.pointerId)
     s.armDrag = true
@@ -199,6 +225,7 @@ export default function Turntable() {
       style={band ? ({ '--deck-accent': band.accent } as React.CSSProperties) : undefined}
     >
       <div ref={stage} className="dr-deck-stage">
+        <div ref={ring} className="dr-deck-ring" aria-hidden="true" />
         <div
           key={album?.band ?? 'idle'}
           className="dr-deck-disc"

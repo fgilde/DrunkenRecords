@@ -68,6 +68,11 @@ export class Deck {
     return true
   }
 
+  /** Ausgang für Analyzer; erst nach `unlock()` gesetzt. */
+  get output(): AudioNode | undefined {
+    return this.node
+  }
+
   seek(sec: number) {
     this.node?.port.postMessage({ seek: sec })
   }
