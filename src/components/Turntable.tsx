@@ -15,6 +15,7 @@ import type { HeroViz } from '../lib/heroViz'
 // - Tonarm ziehen = Position auf der Platte wählen (außen = Track 1, innen = letzter Track),
 //   zurück auf die Ablage = Stopp
 // - Platte mit der Maus drehen = Scratchen (Richtung + Tempo folgen der Hand)
+// - Mixer: Filter, Pitch, Echo (halten), Backspin, Airhorn; Pause bremst die Platte ab
 
 const DEG_PER_SEC = 200 // 33⅓ rpm
 const ARM_REST = -8 // Ablage neben der Platte
@@ -49,6 +50,8 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
     armAngle: ARM_REST,
     scratch: null as null | { last: number; t: number; vel: number },
     armDrag: false,
+    braking: false,
+    pitch: 0, // ±0.08 = ±8 %
   }).current
 
   // Audio erst nach Nutzer-Geste starten; Visualisierung wird dabei lazy nachgeladen.
@@ -82,6 +85,7 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
 
   const stop = () => {
     s.needle = false
+    s.braking = false
     rerender()
   }
 
@@ -93,8 +97,13 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
   const toggle = () => {
     unlock()
     if (!s.album) return play(ALBUMS[0], 0)
-    if (s.needle) return stop()
-    s.needle = true
+    if (s.needle && !s.braking) {
+      s.braking = true // Motor aus, Platte läuft hörbar aus – Nadel hebt danach ab
+    } else {
+      if (!s.needle) s.rate = 0 // Anlaufen beim Weiterspielen
+      s.needle = true
+      s.braking = false
+    }
     rerender()
   }
 
@@ -125,9 +134,11 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
         if (now - s.scratch.t > 50) s.scratch.vel *= 0.6
         s.rate = s.scratch.vel
       } else {
-        // Motor zieht die Platte zurück auf Nenndrehzahl.
-        s.rate += (1 - s.rate) * Math.min(1, dt * 5)
-        if (Math.abs(1 - s.rate) < 0.002) s.rate = 1
+        // Motor zieht die Platte auf Solldrehzahl (inkl. Pitch) bzw. bremst sie ab.
+        const target = s.braking ? 0 : 1 + s.pitch
+        s.rate += (target - s.rate) * Math.min(1, dt * (s.braking ? 2.2 : 5))
+        if (Math.abs(target - s.rate) < 0.002) s.rate = target
+        if (s.braking && s.rate < 0.02) stop()
         s.angle += s.rate * DEG_PER_SEC * dt
       }
       const audible = s.needle && !s.loading && !s.armDrag
@@ -215,9 +226,29 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
     play(album, track, (p * n - track) * album.tracks[track][1])
   }
 
+  // --- Mixer ---
+  const resetOnDoubleClick = (apply: (v: number) => void) => (e: React.MouseEvent<HTMLInputElement>) => {
+    e.currentTarget.value = '0'
+    apply(0)
+  }
+  const setFilter = (v: number) => deck.current!.setFilter(v)
+  const setPitch = (v: number) => (s.pitch = v)
+  const echo = (on: boolean) => {
+    unlock()
+    deck.current!.echo(on)
+  }
+  const holdPad = {
+    onPointerDown: () => echo(true),
+    onPointerUp: () => echo(false),
+    onPointerLeave: () => echo(false),
+    onPointerCancel: () => echo(false),
+    onKeyDown: (e: React.KeyboardEvent) => (e.key === ' ' || e.key === 'Enter') && echo(true),
+    onKeyUp: () => echo(false),
+  }
+
   const album = s.album
   const band = album && bandOf(album)
-  const playing = s.needle
+  const playing = s.needle && !s.braking
 
   return (
     <div
@@ -297,6 +328,55 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
             </button>
             <button className="dr-deck-btn" onClick={() => step(1)} aria-label="Nächster Track">
               ⏭
+            </button>
+          </div>
+        </div>
+        <div className="dr-deck-mixer">
+          <label className="dr-deck-fader">
+            <span>LP ◂ Filter ▸ HP</span>
+            <input
+              type="range"
+              min={-1}
+              max={1}
+              step={0.01}
+              defaultValue={0}
+              onInput={(e) => setFilter(+e.currentTarget.value)}
+              onDoubleClick={resetOnDoubleClick(setFilter)}
+            />
+          </label>
+          <label className="dr-deck-fader">
+            <span>− Pitch ±8 % +</span>
+            <input
+              type="range"
+              min={-0.08}
+              max={0.08}
+              step={0.001}
+              defaultValue={0}
+              onInput={(e) => setPitch(+e.currentTarget.value)}
+              onDoubleClick={resetOnDoubleClick(setPitch)}
+            />
+          </label>
+          <div className="dr-deck-pads">
+            <button className="dr-deck-pad" {...holdPad}>
+              Echo
+            </button>
+            <button
+              className="dr-deck-pad"
+              onClick={() => {
+                unlock()
+                if (!s.scratch) s.rate = -4
+              }}
+            >
+              Backspin
+            </button>
+            <button
+              className="dr-deck-pad"
+              onClick={() => {
+                unlock()
+                void deck.current!.unlock().then(() => deck.current!.horn())
+              }}
+            >
+              Horn
             </button>
           </div>
         </div>
