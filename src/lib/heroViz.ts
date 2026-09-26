@@ -26,16 +26,31 @@ const COMMON: ConstructorOptions = {
 
 export interface Viz {
   setBand(band: BandKey): void
+  /** Mischt die Band-Verläufe nach Gewicht (z. B. hörbarer Pegel je Deck). */
+  setMix(parts: [BandKey, number][]): void
   setActive(on: boolean): void
 }
+
+const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
 
 function create(el: HTMLElement, options: ConstructorOptions): Viz {
   const a = new AudioMotionAnalyzer(el, { ...COMMON, ...options })
   for (const [band, stops] of Object.entries(GRADIENTS))
-    a.registerGradient(band, { bgColor: 'transparent', colorStops: stops })
+    a.registerGradient(band, { bgColor: 'transparent', colorStops: [...stops] }) // registerGradient mutiert das Array
   let stopTimer = 0
   return {
     setBand: (band) => (a.gradient = band),
+    setMix(parts) {
+      const total = parts.reduce((t, [, w]) => t + w, 0)
+      if (total < 1e-4) return
+      const colorStops = [0, 1, 2].map((i) => {
+        const c = [0, 0, 0]
+        for (const [band, w] of parts) rgb(GRADIENTS[band][i]).forEach((v, k) => (c[k] += (v * w) / total))
+        return `rgb(${c.map(Math.round).join(',')})`
+      })
+      a.registerGradient('mix', { bgColor: 'transparent', colorStops })
+      if (a.gradient !== 'mix') a.gradient = 'mix'
+    },
     setActive(on) {
       window.clearTimeout(stopTimer)
       el.classList.toggle('is-on', on)

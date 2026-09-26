@@ -19,10 +19,27 @@ export default function Hero() {
   const status = useRef({
     a: { on: false, band: null as BandKey | null },
     b: { on: false, band: null as BandKey | null },
-    last: 'a' as Side,
   })
 
   useEffect(() => () => engine.close(), [engine])
+
+  // Farbe der Hintergrund-Balken folgt dem hörbaren Pegel je Deck (Fader + Crossfader):
+  // nur rechts hörbar = Farbe von Deck B, beide gleich laut = Mischfarbe.
+  useEffect(() => {
+    const w = { a: 0, b: 0 }
+    const id = window.setInterval(() => {
+      const st = status.current
+      if (!bars.current || !(st.a.on || st.b.on)) return
+      const parts: [BandKey, number][] = []
+      ;(['a', 'b'] as const).forEach((side, i) => {
+        const lvl = st[side].on ? engine.channels[i].level() : 0
+        w[side] = w[side] * 0.75 + lvl * 0.25
+        if (st[side].band) parts.push([st[side].band!, w[side]])
+      })
+      bars.current.setMix(parts)
+    }, 80)
+    return () => window.clearInterval(id)
+  }, [engine])
 
   // Deck B + Mixer sind nur im DJ-Modus bedienbar (bleiben für die Animation im DOM).
   useEffect(() => {
@@ -35,16 +52,12 @@ export default function Hero() {
     setDj(!dj)
   }
 
-  // Hintergrund-Balken: an, solange ein Deck spielt; Farbe der zuletzt gestarteten, noch laufenden Platte.
+  // Hintergrund-Balken: an, solange ein Deck spielt (Farbe setzt der Pegel-Loop oben).
   const onStatus = (side: Side, on: boolean, band: BandKey | null) => {
     const st = status.current
-    if (on && !st[side].on) st.last = side
     st[side] = { on, band }
-    const other = st.last === 'a' ? st.b : st.a
-    const lead = !st[st.last].on && other.on ? other : st[st.last]
     const any = st.a.on || st.b.on
     if (bars.current) {
-      if (lead.band) bars.current.setBand(lead.band)
       bars.current.setActive(any)
     } else if (any && !barsLoading.current && engine.output && viz.current) {
       barsLoading.current = true
