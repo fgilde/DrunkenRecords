@@ -1,10 +1,62 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { BandKey } from '../data/bands'
+import { Engine } from '../lib/deck'
+import type { Viz } from '../lib/heroViz'
+import DjMixer from './DjMixer'
 import Turntable from './Turntable'
+
+type Side = 'a' | 'b'
 
 export default function Hero() {
   const viz = useRef<HTMLDivElement>(null)
+  const [engine] = useState(() => new Engine())
+  const [dj, setDj] = useState(false)
+  // Mixer bei jedem Öffnen frisch mounten, damit Regler und (zurückgesetzte) Engine übereinstimmen.
+  const [session, setSession] = useState(0)
+  const djOnly = useRef<HTMLDivElement[]>([])
+  const bars = useRef<Viz | null>(null)
+  const barsLoading = useRef(false)
+  const status = useRef({
+    a: { on: false, band: null as BandKey | null },
+    b: { on: false, band: null as BandKey | null },
+    last: 'a' as Side,
+  })
+
+  useEffect(() => () => engine.close(), [engine])
+
+  // Deck B + Mixer sind nur im DJ-Modus bedienbar (bleiben für die Animation im DOM).
+  useEffect(() => {
+    djOnly.current.forEach((el) => (el.inert = !dj))
+  }, [dj])
+
+  const toggleDj = () => {
+    if (dj) engine.reset()
+    else setSession((n) => n + 1)
+    setDj(!dj)
+  }
+
+  // Hintergrund-Balken: an, solange ein Deck spielt; Farbe der zuletzt gestarteten, noch laufenden Platte.
+  const onStatus = (side: Side, on: boolean, band: BandKey | null) => {
+    const st = status.current
+    if (on && !st[side].on) st.last = side
+    st[side] = { on, band }
+    const other = st.last === 'a' ? st.b : st.a
+    const lead = !st[st.last].on && other.on ? other : st[st.last]
+    const any = st.a.on || st.b.on
+    if (bars.current) {
+      if (lead.band) bars.current.setBand(lead.band)
+      bars.current.setActive(any)
+    } else if (any && !barsLoading.current && engine.output && viz.current) {
+      barsLoading.current = true
+      void import('../lib/heroViz').then(({ createBars }) => {
+        bars.current = createBars(engine.output!, viz.current!)
+        onStatus(side, on, band)
+      })
+    }
+  }
+
   return (
-    <section id="top" className="dr-hero">
+    <section id="top" className={`dr-hero${dj ? ' is-dj' : ''}`}>
       <div data-blob className="dr-blob dr-hero-blob-1" />
       <div data-blob className="dr-blob dr-hero-blob-2" />
       <div className="dr-hero-grid" />
@@ -38,7 +90,17 @@ export default function Hero() {
         </div>
       </div>
 
-      <Turntable vizRef={viz} />
+      <Turntable side="a" engine={engine} channel={engine.channels[0]} dj={dj} onStatus={onStatus}>
+        <button className="dr-dj-toggle" onClick={toggleDj} hidden={dj}>
+          ⇄ Mischpult öffnen
+        </button>
+      </Turntable>
+      <div ref={(el) => el && (djOnly.current[0] = el)} className="dr-dj-wrap">
+        <DjMixer key={session} engine={engine} active={dj} onClose={toggleDj} />
+      </div>
+      <div ref={(el) => el && (djOnly.current[1] = el)} className="dr-dj-wrap">
+        <Turntable side="b" engine={engine} channel={engine.channels[1]} dj={dj} onStatus={onStatus} />
+      </div>
 
       <div className="dr-scrollcue">
         <div className="dr-scrollcue-mouse">

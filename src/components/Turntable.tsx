@@ -2,20 +2,21 @@ import {
   useEffect,
   useReducer,
   useRef,
+  type ReactNode,
   type PointerEvent as ReactPointerEvent,
-  type RefObject,
 } from 'react'
 import { ALBUMS, coverUrl, trackUrl, type Album } from '../data/albums'
-import { BANDS } from '../data/bands'
-import { Deck } from '../lib/deck'
-import type { HeroViz } from '../lib/heroViz'
+import { BANDS, type BandKey } from '../data/bands'
+import type { Channel, Engine } from '../lib/deck'
+import type { Viz } from '../lib/heroViz'
 
 // Interaktiver Plattenspieler im Hero:
 // - Cover anklicken = Platte wechseln (startet Track 1)
 // - Tonarm ziehen = Position auf der Platte wählen (außen = Track 1, innen = letzter Track),
 //   zurück auf die Ablage = Stopp
 // - Platte mit der Maus drehen = Scratchen (Richtung + Tempo folgen der Hand)
-// - Mixer: Filter, Pitch, Echo (halten), Backspin, Airhorn; Pause bremst die Platte ab
+// - Pause bremst die Platte hörbar ab
+// - Im DJ-Modus zusätzlich: Pitch ±8 %, 3 Hot-Cues (Klick setzt/springt, Doppelklick löscht), Backspin
 
 const DEG_PER_SEC = 200 // 33⅓ rpm
 const ARM_REST = -8 // Ablage neben der Platte
@@ -28,14 +29,25 @@ const angleAround = (x: number, y: number, cx: number, cy: number) =>
   (Math.atan2(y - cy, x - cx) * 180) / Math.PI
 const wrap180 = (d: number) => ((((d + 180) % 360) + 360) % 360) - 180
 
-export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement> }) {
+type Cue = { album: Album; track: number; pos: number } | null
+
+interface Props {
+  side: 'a' | 'b'
+  engine: Engine
+  channel: Channel
+  dj: boolean
+  /** Meldet Wiedergabe-Status + Band an den Hero (für die Hintergrund-Balken). */
+  onStatus: (side: 'a' | 'b', playing: boolean, band: BandKey | null) => void
+  children?: ReactNode
+}
+
+export default function Turntable({ side, engine, channel, dj, onStatus, children }: Props) {
   const [, rerender] = useReducer((n: number) => n + 1, 0)
   const stage = useRef<HTMLDivElement>(null)
   const platter = useRef<HTMLDivElement>(null)
   const arm = useRef<HTMLDivElement>(null)
-  const deck = useRef<Deck>()
   const ring = useRef<HTMLDivElement>(null)
-  const viz = useRef<HeroViz | null>(null)
+  const viz = useRef<Viz | null>(null)
   const vizLoading = useRef(false)
   // Veränderlicher Zustand in einem Ref, damit rAF-Loop und Pointer-Handler nie veralten.
   const s = useRef({
@@ -52,15 +64,16 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
     armDrag: false,
     braking: false,
     pitch: 0, // ±0.08 = ±8 %
+    cues: [null, null, null] as Cue[],
   }).current
 
-  // Audio erst nach Nutzer-Geste starten; Visualisierung wird dabei lazy nachgeladen.
+  // Audio erst nach Nutzer-Geste starten; Ring-Visual wird dabei lazy nachgeladen.
   const unlock = () => {
-    void deck.current!.unlock().then(async () => {
-      if (vizLoading.current || !vizRef.current || !ring.current) return
+    void engine.unlock().then(async () => {
+      if (vizLoading.current || !ring.current) return
       vizLoading.current = true
-      const { createHeroViz } = await import('../lib/heroViz')
-      viz.current = createHeroViz(deck.current!.output!, vizRef.current, ring.current)
+      const { createRing } = await import('../lib/heroViz')
+      viz.current = createRing(channel.output!, ring.current)
       rerender()
     })
   }
@@ -69,11 +82,11 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
     const key = `${album.band}/${track}`
     Object.assign(s, { album, track, needle: true, pos: offset })
     if (s.loaded === key) {
-      deck.current!.seek(offset)
+      channel.seek(offset)
     } else {
       s.loading = true
       s.loaded = ''
-      deck.current!.load(trackUrl(album, track), offset).then((ok) => {
+      channel.load(trackUrl(album, track), offset).then((ok) => {
         if (!ok) return
         s.loaded = key
         s.loading = false
@@ -115,7 +128,7 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
   }
 
   useEffect(() => {
-    const d = (deck.current = new Deck())
+    const d = channel
     d.onPosition = (pos, ended) => {
       if (s.loading) return
       s.pos = pos
@@ -158,16 +171,22 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
       raf = requestAnimationFrame(loop)
     }
     raf = requestAnimationFrame(loop)
-    return () => {
-      cancelAnimationFrame(raf)
-      d.close()
-    }
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   useEffect(() => {
+    const on = s.needle && !s.loading
     if (s.album) viz.current?.setBand(s.album.band)
-    viz.current?.setActive(s.needle && !s.loading)
+    viz.current?.setActive(on)
+    onStatus(side, on, s.album?.band ?? null)
   })
+
+  // Mischpult zu: Deck B verstummt, Pitch zurück auf 0.
+  useEffect(() => {
+    if (dj) return
+    s.pitch = 0
+    if (side === 'b') stop()
+  }, [dj])
 
   // --- Scratchen ---
   const center = () => {
@@ -226,24 +245,18 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
     play(album, track, (p * n - track) * album.tracks[track][1])
   }
 
-  // --- Mixer ---
-  const resetOnDoubleClick = (apply: (v: number) => void) => (e: React.MouseEvent<HTMLInputElement>) => {
-    e.currentTarget.value = '0'
-    apply(0)
-  }
-  const setFilter = (v: number) => deck.current!.setFilter(v)
-  const setPitch = (v: number) => (s.pitch = v)
-  const echo = (on: boolean) => {
+  // --- DJ-Extras ---
+  const hitCue = (i: number) => {
     unlock()
-    deck.current!.echo(on)
+    const c = s.cues[i]
+    if (c) return play(c.album, c.track, c.pos)
+    if (!s.album) return
+    s.cues[i] = { album: s.album, track: s.track, pos: s.pos }
+    rerender()
   }
-  const holdPad = {
-    onPointerDown: () => echo(true),
-    onPointerUp: () => echo(false),
-    onPointerLeave: () => echo(false),
-    onPointerCancel: () => echo(false),
-    onKeyDown: (e: React.KeyboardEvent) => (e.key === ' ' || e.key === 'Enter') && echo(true),
-    onKeyUp: () => echo(false),
+  const clearCue = (i: number) => {
+    s.cues[i] = null
+    rerender()
   }
 
   const album = s.album
@@ -252,7 +265,7 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
 
   return (
     <div
-      className="dr-deck"
+      className={`dr-deck dr-deck-${side}`}
       style={band ? ({ '--deck-accent': band.accent } as React.CSSProperties) : undefined}
     >
       <div ref={stage} className="dr-deck-stage">
@@ -271,7 +284,7 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
             )}
           </div>
         </div>
-        {!album && <img className="dr-vinyl-logo" src="/logo-560.webp" alt="" draggable={false} />}
+        {!album && side === 'a' && <img className="dr-vinyl-logo" src="/logo-560.webp" alt="" draggable={false} />}
         <div
           ref={arm}
           className="dr-vinyl-arm"
@@ -310,8 +323,10 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
               </>
             ) : (
               <>
-                <span className="dr-deck-band">Platte wählen</span>
-                <span className="dr-deck-track">Arm auflegen · Platte drehen zum Scratchen</span>
+                <span className="dr-deck-band">{dj ? `Deck ${side.toUpperCase()}` : 'Platte wählen'}</span>
+                <span className="dr-deck-track">
+                  {dj ? 'Platte wählen' : 'Arm auflegen · Platte drehen zum Scratchen'}
+                </span>
               </>
             )}
           </div>
@@ -331,55 +346,49 @@ export default function Turntable({ vizRef }: { vizRef: RefObject<HTMLDivElement
             </button>
           </div>
         </div>
-        <div className="dr-deck-mixer">
-          <label className="dr-deck-fader">
-            <span>LP ◂ Filter ▸ HP</span>
-            <input
-              type="range"
-              min={-1}
-              max={1}
-              step={0.01}
-              defaultValue={0}
-              onInput={(e) => setFilter(+e.currentTarget.value)}
-              onDoubleClick={resetOnDoubleClick(setFilter)}
-            />
-          </label>
-          <label className="dr-deck-fader">
-            <span>− Pitch ±8 % +</span>
-            <input
-              type="range"
-              min={-0.08}
-              max={0.08}
-              step={0.001}
-              defaultValue={0}
-              onInput={(e) => setPitch(+e.currentTarget.value)}
-              onDoubleClick={resetOnDoubleClick(setPitch)}
-            />
-          </label>
-          <div className="dr-deck-pads">
-            <button className="dr-deck-pad" {...holdPad}>
-              Echo
-            </button>
-            <button
-              className="dr-deck-pad"
-              onClick={() => {
-                unlock()
-                if (!s.scratch) s.rate = -4
-              }}
-            >
-              Backspin
-            </button>
-            <button
-              className="dr-deck-pad"
-              onClick={() => {
-                unlock()
-                void deck.current!.unlock().then(() => deck.current!.horn())
-              }}
-            >
-              Horn
-            </button>
+        {dj && (
+          <div className="dr-deck-dj">
+            <label className="dr-deck-fader">
+              <span>− Pitch ±8 % +</span>
+              <input
+                type="range"
+                min={-0.08}
+                max={0.08}
+                step={0.001}
+                defaultValue={0}
+                onInput={(e) => (s.pitch = +e.currentTarget.value)}
+                onDoubleClick={(e) => {
+                  e.currentTarget.value = '0'
+                  s.pitch = 0
+                }}
+              />
+            </label>
+            <div className="dr-deck-pads">
+              {s.cues.map((c, i) => (
+                <button
+                  key={i}
+                  className="dr-deck-pad"
+                  aria-pressed={!!c}
+                  title={c ? 'Springen · Doppelklick löscht' : 'Cue setzen'}
+                  onClick={() => hitCue(i)}
+                  onDoubleClick={() => clearCue(i)}
+                >
+                  Cue {i + 1}
+                </button>
+              ))}
+              <button
+                className="dr-deck-pad"
+                onClick={() => {
+                  unlock()
+                  if (!s.scratch) s.rate = -4
+                }}
+              >
+                Spin
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+        {children}
       </div>
     </div>
   )
