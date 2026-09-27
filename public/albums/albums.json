@@ -1,0 +1,221 @@
+{
+  "records": [
+    {
+      "title": "Wir haben Ferien",
+      "artist": "Die PapiBaras",
+      "accent": "#3de0ff",
+      "gradient": [
+        "#3de0ff",
+        "#6a7bff",
+        "#c93dff"
+      ],
+      "link": "https://papibaras.de",
+      "cover": "papibaras/cover.webp",
+      "tracks": [
+        {
+          "title": "Mach die Bahn frei",
+          "src": "papibaras/01.mp3",
+          "duration": 202.2
+        },
+        {
+          "title": "Das darf man nicht sagen",
+          "src": "papibaras/02.mp3",
+          "duration": 206.3
+        },
+        {
+          "title": "Wir sind Bunt",
+          "src": "papibaras/03.mp3",
+          "duration": 170.8
+        },
+        {
+          "title": "Wir haben Ferien",
+          "src": "papibaras/04.mp3",
+          "duration": 237.2
+        },
+        {
+          "title": "Du bist genug",
+          "src": "papibaras/05.mp3",
+          "duration": 196.4
+        },
+        {
+          "title": "Groß",
+          "src": "papibaras/06.mp3",
+          "duration": 235.6
+        },
+        {
+          "title": "Bauch in die Sonne",
+          "src": "papibaras/07.mp3",
+          "duration": 180
+        },
+        {
+          "title": "We speak English",
+          "src": "papibaras/08.mp3",
+          "duration": 192.4
+        },
+        {
+          "title": "Lecker Brot",
+          "src": "papibaras/09.mp3",
+          "duration": 182
+        },
+        {
+          "title": "Mit deinen Augen sehen",
+          "src": "papibaras/10.mp3",
+          "duration": 214.3
+        },
+        {
+          "title": "Anna Anaconda",
+          "src": "papibaras/11.mp3",
+          "duration": 150
+        }
+      ]
+    },
+    {
+      "title": "The Celtic Reworks",
+      "artist": "Eyirish",
+      "accent": "#b8ff2e",
+      "gradient": [
+        "#d4ff3a",
+        "#2bd9a0",
+        "#0f5c4a"
+      ],
+      "link": "https://www.eyirish.de",
+      "cover": "eyirish/cover.webp",
+      "tracks": [
+        {
+          "title": "Drunken Sailor",
+          "src": "eyirish/01.mp3",
+          "duration": 189.5
+        },
+        {
+          "title": "All for Me Grog",
+          "src": "eyirish/02.mp3",
+          "duration": 174.9
+        },
+        {
+          "title": "Auld Lang Syne",
+          "src": "eyirish/03.mp3",
+          "duration": 192.5
+        },
+        {
+          "title": "Black Velvet Band",
+          "src": "eyirish/04.mp3",
+          "duration": 289.8
+        },
+        {
+          "title": "Leaving of Liverpool",
+          "src": "eyirish/05.mp3",
+          "duration": 200.6
+        },
+        {
+          "title": "House of Rising Sun",
+          "src": "eyirish/06.mp3",
+          "duration": 144.8
+        },
+        {
+          "title": "Wild Rover",
+          "src": "eyirish/07.mp3",
+          "duration": 230
+        },
+        {
+          "title": "Johnny I Hardly Knew Ye",
+          "src": "eyirish/08.mp3",
+          "duration": 295.4
+        },
+        {
+          "title": "Whiskey in the Jar",
+          "src": "eyirish/09.mp3",
+          "duration": 234.6
+        },
+        {
+          "title": "Ill Tell Me Ma",
+          "src": "eyirish/10.mp3",
+          "duration": 176.9
+        },
+        {
+          "title": "Sloop Flo G",
+          "src": "eyirish/11.mp3",
+          "duration": 190.9
+        },
+        {
+          "title": "Rocky Road to Dublin",
+          "src": "eyirish/12.mp3",
+          "duration": 209.9
+        },
+        {
+          "title": "Excursion Around the Bay",
+          "src": "eyirish/13.mp3",
+          "duration": 224.8
+        }
+      ]
+    },
+    {
+      "title": "Politisch korrekt",
+      "artist": "0,5er",
+      "accent": "#ff7a3d",
+      "gradient": [
+        "#ffc23d",
+        "#ff5a3d",
+        "#7a1f3d"
+      ],
+      "link": "https://www.null5er.de",
+      "cover": "null5er/cover.webp",
+      "tracks": [
+        {
+          "title": "Wutbürger",
+          "src": "null5er/01.mp3",
+          "duration": 276.3
+        },
+        {
+          "title": "Antifa",
+          "src": "null5er/02.mp3",
+          "duration": 227.4
+        },
+        {
+          "title": "Du wählst dumm",
+          "src": "null5er/03.mp3",
+          "duration": 197.2
+        },
+        {
+          "title": "Epschwein",
+          "src": "null5er/04.mp3",
+          "duration": 199.4
+        },
+        {
+          "title": "Die Welt ist am Ende",
+          "src": "null5er/05.mp3",
+          "duration": 187
+        },
+        {
+          "title": "KI im Kopf",
+          "src": "null5er/06.mp3",
+          "duration": 177.3
+        },
+        {
+          "title": "Digitale Hölle",
+          "src": "null5er/07.mp3",
+          "duration": 269.5
+        },
+        {
+          "title": "Lebe jetzt",
+          "src": "null5er/08.mp3",
+          "duration": 189.6
+        },
+        {
+          "title": "Suff Can Can",
+          "src": "null5er/09.mp3",
+          "duration": 254.9
+        },
+        {
+          "title": "Zu alt für den Scheiß",
+          "src": "null5er/10.mp3",
+          "duration": 249.4
+        },
+        {
+          "title": "Der beste Freund",
+          "src": "null5er/11.mp3",
+          "duration": 283.8
+        }
+      ]
+    }
+  ]
+}

@@ -1,9 +1,12 @@
 /// <reference types="vite/client" />
 
-// GildeConnect-Widget (connect.gilde.org/widgets/v1.js)
+// Web-Components: GildeConnect-Widget (connect.gilde.org) und Audiola-Plattenspieler
 declare namespace JSX {
   interface IntrinsicElements {
     'gilde-contact': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> &
+      { [attr: string]: unknown }
+    // Audiola-Plattenspieler (audiola.de/widgets/turntable/v1.js)
+    'audiola-turntable': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> &
       { [attr: string]: unknown }
   }
 }
